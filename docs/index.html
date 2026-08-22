@@ -3,473 +3,194 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vital Care Referral Form Filler</title>
+<title>Vital Care IG Referral</title>
 <style>
   *{box-sizing:border-box}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eef2f6;min-height:100vh;padding:24px;margin:0;color:#173042}
-  .container{max-width:1040px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 4px 24px rgba(16,43,63,.12);overflow:hidden}
-  .header{background:#1f6f96;color:#fff;padding:32px 36px}
-  .header h1{margin:0;font-size:26px;font-weight:700;letter-spacing:-.2px}
-  .header p{margin:6px 0 0;font-size:14px;opacity:.9}
-  .content{padding:32px 36px 40px}
-  .form-section{margin-bottom:32px}
-  .form-section h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#1f6f96;margin:0 0 16px;padding-bottom:8px;border-bottom:1px solid #dbe6ee}
-  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-  .form-group{display:flex;flex-direction:column}
-  .form-group.wide{grid-column:1/-1}
-  .form-group label{font-weight:600;font-size:13px;margin-bottom:6px;color:#3c5468}
-  input,select,textarea{padding:9px 11px;border:1px solid #cfdce6;border-radius:5px;font-family:inherit;font-size:14px;color:#173042;background:#fff}
+  .container{max-width:1080px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 4px 24px rgba(16,43,63,.12);overflow:hidden}
+  .header{background:#1f6f96;color:#fff;padding:28px 36px}
+  .header h1{margin:0;font-size:24px;font-weight:700}
+  .header p{margin:5px 0 0;font-size:13px;opacity:.9}
+  .build{margin-top:8px;font-size:11px;opacity:.6;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .content{padding:28px 36px 36px}
+  h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#1f6f96;margin:30px 0 14px;padding-bottom:7px;border-bottom:1px solid #dbe6ee}
+  h2:first-child{margin-top:0}
+  h3{font-size:13px;font-weight:600;color:#3c5468;margin:18px 0 8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .fg{display:flex;flex-direction:column}
+  .fg.wide{grid-column:1/-1}
+  .fg label{font-weight:600;font-size:12px;margin-bottom:5px;color:#3c5468}
+  input[type=text],input[type=tel],input[type=email],select,textarea{padding:8px 10px;border:1px solid #cfdce6;border-radius:5px;font-family:inherit;font-size:14px;color:#173042;background:#fff;width:100%}
   input:focus,select:focus,textarea:focus{outline:none;border-color:#1f6f96;box-shadow:0 0 0 3px rgba(31,111,150,.12)}
-  textarea{resize:vertical;min-height:70px}
-  .required::after{content:" *";color:#c0392b}
-  .button-group{display:flex;gap:10px;justify-content:flex-end;margin-top:32px;flex-wrap:wrap}
-  button{padding:11px 26px;border:none;border-radius:5px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit}
+  textarea{resize:vertical;min-height:64px}
+  .req::after{content:" *";color:#c0392b}
+  .dxcols{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .dxlist{border:1px solid #dbe6ee;border-radius:6px;max-height:260px;overflow:auto}
+  .dxrow{display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:12.5px;border-bottom:1px solid #f0f5f8}
+  .dxrow:last-child{border-bottom:none}
+  .dxrow:hover{background:#f6fafc}
+  .dxrow input{margin:0;flex:none}
+  .dxrow .icd{margin-left:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#7a8fa0;flex:none}
+  .chk{display:flex;align-items:center;gap:7px;font-size:13px;color:#3c5468;padding:4px 0}
+  .chk input{flex:none;margin:0}
+  .inline{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:13px;color:#3c5468;padding:4px 0}
+  .inline input[type=text]{width:70px;padding:5px 7px}
+  .inline input.med{width:120px}
+  .alert{padding:13px 16px;border-radius:5px;margin-bottom:18px;font-size:13.5px;border-left:3px solid;line-height:1.55}
+  .alert-info{background:#eef6fb;color:#1f6f96;border-left-color:#1f6f96}
+  .alert-success{background:#eaf7ef;color:#1e7a44;border-left-color:#2f9e5f}
+  .alert-error{background:#fdeeed;color:#a5342b;border-left-color:#c0392b}
+  .alert-warn{background:#fef7e8;color:#8a6216;border-left-color:#d9a327}
+  .bar{display:flex;gap:10px;justify-content:flex-end;margin-top:30px;flex-wrap:wrap;align-items:center}
+  button{padding:10px 24px;border:none;border-radius:5px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit}
   .btn-primary{background:#1f6f96;color:#fff}
   .btn-primary:hover:not(:disabled){background:#195b7c}
   .btn-primary:disabled{opacity:.5;cursor:not-allowed}
   .btn-secondary{background:#fff;color:#3c5468;border:1px solid #cfdce6}
   .btn-secondary:hover{background:#f4f8fb}
-  .alert{padding:13px 16px;border-radius:5px;margin-bottom:20px;font-size:14px;border-left:3px solid;line-height:1.5}
-  .alert-info{background:#eef6fb;color:#1f6f96;border-left-color:#1f6f96}
-  .alert-success{background:#eaf7ef;color:#1e7a44;border-left-color:#2f9e5f}
-  .alert-error{background:#fdeeed;color:#a5342b;border-left-color:#c0392b}
-  .alert-warn{background:#fef7e8;color:#8a6216;border-left-color:#d9a327}
-  .referral-types{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-  .referral-btn{padding:11px 12px;border:1px solid #cfdce6;border-radius:5px;background:#fff;color:#3c5468;font-weight:600;cursor:pointer;font-size:13px;text-align:center;font-family:inherit}
-  .referral-btn:hover{border-color:#1f6f96;color:#1f6f96}
-  .referral-btn.active{background:#1f6f96;color:#fff;border-color:#1f6f96}
-  .referral-btn .badge{display:block;font-size:10px;font-weight:500;opacity:.7;margin-top:2px}
-  .checkline{display:flex;align-items:center;gap:8px;font-size:13px;color:#3c5468;margin-top:14px}
-  .checkline input{width:auto}
-  #inspector{margin-top:16px;display:none}
-  #inspectorOut{background:#10242f;color:#c8e6f5;padding:14px;border-radius:5px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;max-height:340px;overflow:auto;white-space:pre-wrap;margin-top:10px}
+  .note{font-size:12px;color:#7a8fa0;margin-top:6px}
+  @media(max-width:720px){.dxcols{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <h1>Vital Care Referral Form Filler</h1>
-    <p>Fill once, download the referral PDF, print and fax to (513) 780-5881</p>
+    <h1>Immunoglobulin Referral Form</h1>
+    <p>Vital Care of West Chester &middot; print and fax to (513) 780-5881</p>
+    <div class="build">build v5 &middot; 2026-08-22 &middot; verified IG mapping</div>
   </div>
   <div class="content">
     <div id="messages"></div>
-    <form id="referralForm">
-      <div class="form-section">
-        <h2>Referral Type</h2>
-        <div class="referral-types" id="referralTypes"></div>
-        <input type="hidden" id="referralType" name="referralType">
-        <div class="checkline">
-          <input type="checkbox" id="flatten" checked>
-          <label for="flatten" style="margin:0;font-weight:500">Flatten before download (locks values so they always print)</label>
+    <form id="f">
+
+      <h2>Patient</h2>
+      <div class="grid">
+        <div class="fg"><label class="req">Last Name</label><input type="text" name="lastName" required></div>
+        <div class="fg"><label class="req">First Name</label><input type="text" name="firstName" required></div>
+        <div class="fg"><label class="req">Date of Birth</label><input type="text" name="dob" placeholder="MM/DD/YYYY" required></div>
+        <div class="fg"><label>Sex</label><select name="gender"><option value="">—</option><option value="M">Male</option><option value="F">Female</option></select></div>
+        <div class="fg wide"><label>Address</label><input type="text" name="address"></div>
+        <div class="fg"><label>City</label><input type="text" name="city"></div>
+        <div class="fg"><label>State</label><input type="text" name="state" maxlength="2"></div>
+        <div class="fg"><label>ZIP</label><input type="text" name="zip" maxlength="10"></div>
+        <div class="fg"><label>Phone</label><input type="tel" name="phone"></div>
+        <div class="fg"><label>SSN</label><input type="text" name="ssn"></div>
+        <div class="fg"><label>Weight</label><input type="text" name="weight"></div>
+        <div class="fg"><label>Height</label><input type="text" name="height"></div>
+        <div class="fg wide"><label>Allergies</label><input type="text" name="allergies"></div>
+      </div>
+
+      <h2>Prescriber &amp; Practice</h2>
+      <div class="grid">
+        <div class="fg"><label class="req">Prescriber Name</label><input type="text" name="prescriberName" required></div>
+        <div class="fg"><label>NPI</label><input type="text" name="npi"></div>
+        <div class="fg"><label>Nurse / Key Contact</label><input type="text" name="nurseContact"></div>
+        <div class="fg wide"><label>Practice</label><input type="text" name="practice"></div>
+        <div class="fg wide"><label>Practice Address</label><input type="text" name="practiceAddress"></div>
+        <div class="fg"><label>City</label><input type="text" name="practiceCity"></div>
+        <div class="fg"><label>State</label><input type="text" name="practiceState" maxlength="2"></div>
+        <div class="fg"><label>ZIP</label><input type="text" name="practiceZip" maxlength="10"></div>
+        <div class="fg"><label>Phone</label><input type="tel" name="prescriberPhone"></div>
+        <div class="fg"><label>Fax</label><input type="tel" name="prescriberFax"></div>
+        <div class="fg"><label>Email</label><input type="email" name="prescriberEmail"></div>
+      </div>
+
+      <h2>Insurance</h2>
+      <h3>Primary</h3>
+      <div class="grid">
+        <div class="fg"><label>Insurance Plan</label><input type="text" name="insurancePlan"></div>
+        <div class="fg"><label>Policy #</label><input type="text" name="policyNumber"></div>
+        <div class="fg"><label>Plan #</label><input type="text" name="planId"></div>
+      </div>
+      <h3>Secondary</h3>
+      <div class="grid">
+        <div class="fg"><label>Insurance Plan</label><input type="text" name="insurancePlan2"></div>
+        <div class="fg"><label>Policy #</label><input type="text" name="policyNumber2"></div>
+        <div class="fg"><label>Plan #</label><input type="text" name="planId2"></div>
+      </div>
+
+      <h2>Diagnosis</h2>
+      <div class="dxcols">
+        <div>
+          <h3>Neuromuscular</h3>
+          <div class="dxlist" id="dxNeuro"></div>
         </div>
-        <div id="inspector">
-          <button type="button" class="btn-secondary" id="inspectBtn">Inspect this form's PDF fields</button>
-          <button type="button" class="btn-secondary" id="labelBtn">Download field-map test PDF</button>
-          <div id="inspectorOut"></div>
+        <div>
+          <h3>Immune Deficiency</h3>
+          <div class="dxlist" id="dxImmune"></div>
         </div>
       </div>
 
-      <div class="form-section">
-        <h2>Patient</h2>
-        <div class="form-grid">
-          <div class="form-group"><label class="required">First Name</label><input type="text" name="firstName" required></div>
-          <div class="form-group"><label class="required">Last Name</label><input type="text" name="lastName" required></div>
-          <div class="form-group"><label class="required">Date of Birth</label><input type="text" name="dob" placeholder="MM/DD/YYYY" required></div>
-          <div class="form-group"><label>Phone</label><input type="tel" name="phone"></div>
-          <div class="form-group"><label>Sex</label><select name="gender"><option value="">Select…</option><option value="M">Male</option><option value="F">Female</option></select></div>
-          <div class="form-group"><label>SSN</label><input type="text" name="ssn"></div>
-          <div class="form-group"><label>Weight (kg)</label><input type="text" name="weight"></div>
-          <div class="form-group"><label>Height</label><input type="text" name="height"></div>
-          <div class="form-group wide"><label>Address</label><input type="text" name="address"></div>
-          <div class="form-group"><label>City</label><input type="text" name="city"></div>
-          <div class="form-group"><label>State</label><input type="text" name="state" maxlength="2"></div>
-          <div class="form-group"><label>ZIP</label><input type="text" name="zip" maxlength="10"></div>
-          <div class="form-group wide"><label>Allergies</label><input type="text" name="allergies"></div>
+      <h2>Access &amp; Labs</h2>
+      <div class="inline"><input type="checkbox" name="ivAccessChk" id="ivAccessChk"><label for="ivAccessChk" style="font-weight:600">IV access (IVIg only):</label><input type="text" name="ivAccess" class="med" style="width:240px"></div>
+      <div class="chk"><input type="checkbox" name="nursePIV" id="nursePIV"><label for="nursePIV">Nurse to place PIV prior to therapy</label></div>
+      <h3>Please draw</h3>
+      <div class="inline">
+        <input type="checkbox" name="labCBC" id="labCBC"><label for="labCBC">CBC/diff</label>
+        <input type="checkbox" name="labCMP" id="labCMP" style="margin-left:14px"><label for="labCMP">CMP</label>
+        <input type="checkbox" name="labIgG" id="labIgG" style="margin-left:14px"><label for="labIgG">IgG with subclasses 1-4</label>
+        <input type="checkbox" name="labQuantIg" id="labQuantIg" style="margin-left:14px"><label for="labQuantIg">Quant. Ig</label>
+      </div>
+      <div class="inline"><label style="font-weight:600">Frequency:</label><input type="text" name="labFrequency" style="width:260px"></div>
+
+      <h2>Protocols</h2>
+      <div class="dxcols">
+        <div>
+          <h3>Anaphylaxis</h3>
+          <div class="chk"><input type="checkbox" name="anaphylaxisPharmacy" id="ap1"><label for="ap1">PER pharmacy protocol</label></div>
+          <div class="inline"><input type="checkbox" name="anaphylaxisPrescriber" id="ap2"><label for="ap2">PER prescriber protocol:</label><input type="text" name="anaphylaxisPrescriberText" class="med"></div>
+        </div>
+        <div>
+          <h3>Flushing</h3>
+          <div class="chk"><input type="checkbox" name="flushingPharmacy" id="fp1"><label for="fp1">PER pharmacy protocol</label></div>
+          <div class="inline"><input type="checkbox" name="flushingPrescriber" id="fp2"><label for="fp2">PER prescriber protocol:</label><input type="text" name="flushingPrescriberText" class="med"></div>
         </div>
       </div>
 
-      <div class="form-section">
-        <h2>Insurance</h2>
-        <div class="form-grid">
-          <div class="form-group"><label>Insurance Plan</label><input type="text" name="insurancePlan"></div>
-          <div class="form-group"><label>Policy #</label><input type="text" name="policyNumber"></div>
-          <div class="form-group"><label>Plan #</label><input type="text" name="planId"></div>
-        </div>
+      <h2>Prescription</h2>
+      <h3>Product</h3>
+      <div class="inline"><input type="checkbox" name="productPharmacistChk" id="pp1"><label for="pp1">Pharmacist to determine:</label><input type="text" name="productPharmacist" class="med" style="width:200px"></div>
+      <div class="inline"><input type="checkbox" name="productPhysicianChk" id="pp2"><label for="pp2">Physician-branded:</label><input type="text" name="productPhysician" class="med" style="width:200px"></div>
+
+      <h3>Intravenous immunoglobulin</h3>
+      <div class="chk"><input type="checkbox" name="ivig" id="ivig"><label for="ivig">Intravenous immunoglobulin</label></div>
+      <div class="inline">
+        <input type="checkbox" name="dose04" id="d04"><label for="d04">0.4 gm/kg</label>
+        <input type="checkbox" name="dose1" id="d1" style="margin-left:14px"><label for="d1">1 gm/kg</label>
+        <input type="checkbox" name="dose2" id="d2" style="margin-left:14px"><label for="d2">2 gm/kg</label>
+        <input type="checkbox" name="doseOther" id="dO" style="margin-left:14px"><label for="dO">Other:</label><input type="text" name="doseOtherGrams"><span>grams</span>
+      </div>
+      <div class="inline">
+        <input type="checkbox" name="ivDaily" id="ivd"><label for="ivd">IV daily x</label><input type="text" name="ivDailyDays"><span>day(s); repeat every</span>
+        <input type="text" name="repeatWeeks"><span>week(s)</span><input type="text" name="cycles"><span>cycles</span>
+      </div>
+      <div class="inline"><input type="checkbox" name="ivOther" id="ivo"><label for="ivo">Other:</label><input type="text" name="ivOtherText" style="width:340px"></div>
+
+      <h3>Subcutaneous immunoglobulin</h3>
+      <div class="chk"><input type="checkbox" name="scig" id="scig"><label for="scig">Subcutaneous immunoglobulin</label></div>
+      <div class="inline">
+        <span>Infuse</span><input type="text" name="scigGrams"><span>grams OR</span><input type="text" name="scigMls"><span>mls using</span><input type="text" name="scigSites"><span>sites</span>
+      </div>
+      <div class="inline">
+        <input type="text" name="scigTimesPerWeek"><span>time(s) per week for</span><input type="text" name="scigMonths"><span>months</span>
       </div>
 
-      <div class="form-section">
-        <h2>Prescriber</h2>
-        <div class="form-grid">
-          <div class="form-group"><label class="required">Prescriber Name</label><input type="text" name="prescriberName" required></div>
-          <div class="form-group"><label>NPI</label><input type="text" name="npi"></div>
-          <div class="form-group"><label>Practice / Facility</label><input type="text" name="practice"></div>
-          <div class="form-group"><label>Phone</label><input type="tel" name="prescriberPhone"></div>
-          <div class="form-group"><label>Fax</label><input type="tel" name="prescriberFax"></div>
-          <div class="form-group"><label>Email</label><input type="email" name="prescriberEmail"></div>
-        </div>
-      </div>
+      <h3>Hydration &amp; Pre-medications</h3>
+      <div class="inline"><label style="font-weight:600">Hydration order:</label><input type="text" name="hydration" style="width:180px"><span>mls NSiv prior/post IVIg</span></div>
+      <div class="chk"><input type="checkbox" name="premeds" id="pm"><label for="pm">Pre-medications: acetaminophen 650mg PO &amp; diphenhydramine 25mg PO, 30 mins prior</label></div>
+      <div class="inline"><input type="checkbox" name="otherPremeds" id="opm"><label for="opm">Other pre-medications:</label><input type="text" name="otherPremedsText" style="width:340px"></div>
 
-      <div class="form-section">
-        <h2>Clinical</h2>
-        <div class="form-grid">
-          <div class="form-group"><label>Diagnosis (ICD-10)</label><input type="text" name="diagnosis"></div>
-          <div class="form-group"><label>Medication</label><input type="text" name="medication"></div>
-          <div class="form-group"><label>Dose &amp; Frequency</label><input type="text" name="dose"></div>
-          <div class="form-group"><label>Vascular Access</label><select name="vascularAccess"><option value="">Select…</option><option value="Peripheral IV">Peripheral IV</option><option value="PICC">PICC</option><option value="Port">Port</option><option value="Other">Other</option></select></div>
-          <div class="form-group wide"><label>Clinical Notes</label><textarea name="clinicalNotes"></textarea></div>
-        </div>
-      </div>
+      <h2>Notes</h2>
+      <div class="fg"><textarea name="notes"></textarea></div>
 
-      <div class="button-group">
-        <button type="reset" class="btn-secondary">Clear form</button>
-        <button type="submit" class="btn-primary" id="submitBtn">Download filled PDF</button>
+      <div class="bar">
+        <label class="chk" style="margin-right:auto"><input type="checkbox" id="flatten" checked> Flatten before download</label>
+        <button type="button" class="btn-secondary" id="labelBtn">Field-map test PDF</button>
+        <button type="reset" class="btn-secondary">Clear</button>
+        <button type="submit" class="btn-primary" id="go">Download filled PDF</button>
       </div>
+      <div class="note">Signature and date are left blank — the prescriber must sign by hand.</div>
     </form>
   </div>
 </div>
 <script src="./pdf-lib.min.js"></script>
-<script>
-(function () {
-  'use strict';
-
-  // ------------------------------------------------------------------
-  // FIELD MAPS — one entry per referral form.
-  // Key   = the `name` attribute of the input in the web form above
-  // Value = the exact field name inside the PDF
-  //
-  // Only IG is mapped so far. To map another form, select it above and
-  // click "Inspect this form's PDF fields" to dump its real field names,
-  // then fill in the empty object below.
-  // ------------------------------------------------------------------
-  var FIELD_MAPS = {
-    IG: {
-      lastName:        'Date 3',
-      firstName:       'Date 4',
-      dob:             'Date 5',
-      phone:           'Date 9',
-      address:         'Date 32',
-      city:            'Date 38',
-      state:           'Date 39',
-      zip:             'Date 40',
-      allergies:       'Date 41',
-      ssn:             'Date 42',
-      weight:          'Date 37',
-      height:          'Date 36',
-      insurancePlan:   'Date 33',
-      policyNumber:    'Date 34',
-      planId:          'Date 35',
-      prescriberName:  'Date 31',
-      npi:             'Date 48',
-      practice:        'Date 47',
-      prescriberPhone: 'Date 49',
-      prescriberFax:   'Date 50',
-      prescriberEmail: 'Date 51',
-      diagnosis:       'Date 44',
-      medication:      'Date 52',
-      dose:            'Date 53',
-      vascularAccess:  'Date 54'
-    },
-    IVABx: {},
-    TPN: {},
-    Alpha1: {},
-    Dermatology: {},
-    Enteral: {},
-    GI: {},
-    HomeInfusion: {},
-    ImmuneDeficiency: {},
-    Neurology: {},
-    Rheumatology: {}
-  };
-
-  // Radio / checkbox groups, handled separately from text fields.
-  // choices maps a web-form value to the PDF export value.
-  var CHOICE_MAPS = {
-    IG: {
-      gender: { field: 'Gender', choices: { M: 'Choice1', F: 'Choice2' } }
-    }
-  };
-
-  var REFERRAL_TYPES = [
-    { id: 'IG',               label: 'Immunoglobulin (IG)', file: 'IG.pdf' },
-    { id: 'IVABx',            label: 'IV Antibiotics',      file: 'IVABx.pdf' },
-    { id: 'TPN',              label: 'TPN',                 file: 'TPN.pdf' },
-    { id: 'Alpha1',           label: 'Alpha-1',             file: 'a1Therapy.pdf' },
-    { id: 'Dermatology',      label: 'Dermatology',         file: 'Dermatology.pdf' },
-    { id: 'Enteral',          label: 'Enteral',             file: 'Enteral.pdf' },
-    { id: 'GI',               label: 'Gastroenterology',    file: 'GI.pdf' },
-    { id: 'HomeInfusion',     label: 'Home Infusion',       file: 'HomeInfusion.pdf' },
-    { id: 'ImmuneDeficiency', label: 'Immune Deficiency',   file: 'ImmuneDeficiencyIG.pdf' },
-    { id: 'Neurology',        label: 'Neurology',           file: 'Neurology.pdf' },
-    { id: 'Rheumatology',     label: 'Rheumatology',        file: 'Rheumatology.pdf' }
-  ];
-
-  var PDF_PATH = './pdfs/';
-
-  function msg(text, kind) {
-    var box = document.getElementById('messages');
-    box.innerHTML = '<div class="alert alert-' + (kind || 'info') + '">' + text + '</div>';
-  }
-
-  function typeInfo(id) {
-    for (var i = 0; i < REFERRAL_TYPES.length; i++) {
-      if (REFERRAL_TYPES[i].id === id) return REFERRAL_TYPES[i];
-    }
-    return null;
-  }
-
-  function isMapped(id) {
-    return Object.keys(FIELD_MAPS[id] || {}).length > 0;
-  }
-
-  function loadPdf(id) {
-    var info = typeInfo(id);
-    var url = PDF_PATH + info.file;
-    return fetch(url).then(function (res) {
-      if (!res.ok) throw new Error('Could not load ' + url + ' (HTTP ' + res.status + ')');
-      return res.arrayBuffer();
-    }).then(function (bytes) {
-      return PDFLib.PDFDocument.load(bytes);
-    });
-  }
-
-  // ---------------- build the type buttons ----------------
-  function buildButtons() {
-    var wrap = document.getElementById('referralTypes');
-    REFERRAL_TYPES.forEach(function (t) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'referral-btn';
-      b.innerHTML = t.label + (isMapped(t.id) ? '' : '<span class="badge">not mapped yet</span>');
-      b.onclick = function () {
-        document.getElementById('referralType').value = t.id;
-        var all = document.querySelectorAll('.referral-btn');
-        for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
-        b.classList.add('active');
-        document.getElementById('inspector').style.display = 'block';
-        document.getElementById('inspectorOut').style.display = 'none';
-        if (isMapped(t.id)) {
-          msg('<strong>' + t.label + '</strong> selected. Fill in the details below and download.', 'info');
-        } else {
-          msg('<strong>' + t.label + '</strong> has no field mapping yet, so the PDF will download blank. ' +
-              'Click <em>Inspect this form\u2019s PDF fields</em> to see its real field names, then add them to FIELD_MAPS in this file.', 'warn');
-        }
-      };
-      wrap.appendChild(b);
-    });
-  }
-
-  // ---------------- field type + geometry helpers ----------------
-  function fieldKind(f) {
-    if (typeof f.setText === 'function') return 'text';
-    if (typeof f.check === 'function') return 'check';
-    if (typeof f.getOptions === 'function') return 'choice';
-    return 'other';
-  }
-
-  function shortLabel(name) {
-    var m = name.match(/(\d+)\s*$/);
-    if (m) return m[1];
-    return name.slice(0, 3);
-  }
-
-  function geometry(doc, f) {
-    var out = [];
-    try {
-      var pages = doc.getPages();
-      f.acroField.getWidgets().forEach(function (w) {
-        var r = w.getRectangle();
-        var page = '?';
-        try {
-          var ref = w.P();
-          for (var i = 0; i < pages.length; i++) {
-            if (pages[i].ref === ref) { page = i + 1; break; }
-          }
-        } catch (e) {}
-        out.push('p' + page + ' x' + Math.round(r.x) + ' y' + Math.round(r.y) +
-                 ' w' + Math.round(r.width) + ' h' + Math.round(r.height));
-      });
-    } catch (e) {}
-    return out.join(' | ');
-  }
-
-  // ---------------- field inspector ----------------
-  function inspect() {
-    var id = document.getElementById('referralType').value;
-    if (!id) { msg('Pick a referral type first.', 'error'); return; }
-    var out = document.getElementById('inspectorOut');
-    out.style.display = 'block';
-    out.textContent = 'Loading ' + typeInfo(id).file + '\u2026';
-
-    loadPdf(id).then(function (doc) {
-      var fields = doc.getForm().getFields();
-      var lines = [typeInfo(id).file + ' \u2014 ' + fields.length + ' fields',
-                   'kind      label   name                      position', ''];
-      fields.forEach(function (f) {
-        var name = f.getName();
-        var kind = fieldKind(f);
-        var line = pad(kind, 9) + pad(shortLabel(name), 7) + pad('"' + name + '"', 26) + geometry(doc, f);
-        if (kind === 'choice') {
-          try { line += '   options: ' + JSON.stringify(f.getOptions()); } catch (e) {}
-        }
-        lines.push(line);
-      });
-      out.textContent = lines.join('\n');
-    }).catch(function (err) {
-      out.textContent = 'Error: ' + err.message;
-    });
-  }
-
-  function pad(s, n) {
-    s = String(s);
-    while (s.length < n) s += ' ';
-    return s;
-  }
-
-  // ---------------- field-map test PDF ----------------
-  // Stamps every text field with its own number and ticks every checkbox,
-  // so a single look at the output shows which field sits where.
-  function labelPdf() {
-    var id = document.getElementById('referralType').value;
-    if (!id) { msg('Pick a referral type first.', 'error'); return; }
-    msg('Building field-map test PDF\u2026', 'info');
-
-    loadPdf(id).then(function (doc) {
-      var form = doc.getForm();
-      var fields = form.getFields();
-      var texts = 0, checks = 0;
-
-      fields.forEach(function (f) {
-        var kind = fieldKind(f);
-        try {
-          if (kind === 'text') {
-            f.setText(shortLabel(f.getName()));
-            try { f.setFontSize(7); } catch (e) {}
-            texts++;
-          } else if (kind === 'check') {
-            f.check();
-            checks++;
-          }
-        } catch (e) {}
-      });
-
-      try { form.flatten(); } catch (e) {}
-      return doc.save().then(function (bytes) {
-        return { bytes: bytes, texts: texts, checks: checks };
-      });
-    }).then(function (r) {
-      download(r.bytes, 'FIELDMAP_' + id + '.pdf');
-      msg('<strong>Field-map test PDF downloaded.</strong> Every text box now shows its own field number ' +
-          '(' + r.texts + ' text fields, ' + r.checks + ' checkboxes ticked). Open it and you can read off ' +
-          'exactly which "Date N" belongs to which label on the form.', 'success');
-    }).catch(function (err) {
-      console.error(err);
-      msg('Error: ' + err.message, 'error');
-    });
-  }
-
-  function download(bytes, filename) {
-    var blob = new Blob([bytes], { type: 'application/pdf' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  // ---------------- fill and download ----------------
-  function submit(e) {
-    e.preventDefault();
-    var id = document.getElementById('referralType').value;
-    if (!id) { msg('Pick a referral type first.', 'error'); return; }
-
-    var btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    msg('Generating PDF\u2026', 'info');
-
-    var data = {};
-    new FormData(e.target).forEach(function (v, k) { data[k] = v; });
-
-    var map = FIELD_MAPS[id] || {};
-    var choiceMap = CHOICE_MAPS[id] || {};
-    var filled = [], missing = [], skipped = [];
-
-    loadPdf(id).then(function (doc) {
-      var form = doc.getForm();
-
-      // text fields
-      Object.keys(map).forEach(function (key) {
-        var value = data[key];
-        if (!value) return;
-        var pdfName = map[key];
-        try {
-          form.getTextField(pdfName).setText(String(value));
-          filled.push(key);
-        } catch (err) {
-          missing.push(key + ' \u2192 "' + pdfName + '"');
-        }
-      });
-
-      // radio / checkbox groups
-      Object.keys(choiceMap).forEach(function (key) {
-        var value = data[key];
-        if (!value) return;
-        var spec = choiceMap[key];
-        try {
-          var group = form.getRadioGroup(spec.field);
-          var target = spec.choices[value];
-          var options = group.getOptions();
-          // fall back to positional match if the export value shifted
-          if (options.indexOf(target) === -1) {
-            var keys = Object.keys(spec.choices);
-            target = options[keys.indexOf(value)];
-          }
-          if (target) { group.select(target); filled.push(key); }
-          else { missing.push(key); }
-        } catch (err) {
-          missing.push(key + ' \u2192 "' + spec.field + '"');
-        }
-      });
-
-      // anything the user typed that this form has no mapping for
-      Object.keys(data).forEach(function (key) {
-        if (key === 'referralType' || !data[key]) return;
-        if (!map[key] && !choiceMap[key]) skipped.push(key);
-      });
-
-      if (document.getElementById('flatten').checked) {
-        try { form.flatten(); } catch (err) { console.warn('flatten failed', err); }
-      }
-      return doc.save();
-    }).then(function (bytes) {
-      download(bytes, 'referral_' + id + '_' + (data.lastName || 'patient') + '.pdf');
-
-      var report = '<strong>Downloaded.</strong> Print and fax to (513) 780-5881.<br>' +
-                   'Filled ' + filled.length + ' field' + (filled.length === 1 ? '' : 's') + '.';
-      if (missing.length) report += '<br><strong>Not found in the PDF:</strong> ' + missing.join(', ');
-      if (skipped.length) report += '<br><strong>No mapping for this form:</strong> ' + skipped.join(', ');
-      msg(report, filled.length ? (missing.length || skipped.length ? 'warn' : 'success') : 'error');
-      btn.disabled = false;
-    }).catch(function (err) {
-      console.error(err);
-      msg('Error: ' + err.message, 'error');
-      btn.disabled = false;
-    });
-  }
-
-  // ---------------- start ----------------
-  if (typeof PDFLib === 'undefined') {
-    msg('pdf-lib.min.js did not load. Make sure it sits in the same folder as index.html.', 'error');
-    return;
-  }
-  buildButtons();
-  document.getElementById('inspectBtn').addEventListener('click', inspect);
-  document.getElementById('labelBtn').addEventListener('click', labelPdf);
-  document.getElementById('referralForm').addEventListener('submit', submit);
-  msg('Pick a referral type to begin.', 'info');
-})();
-</script>
-</body>
-</html>
