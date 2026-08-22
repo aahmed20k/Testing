@@ -274,16 +274,26 @@
     </div>
 
     <script>
-        // Load pdf-lib library
+        // Load pdf-lib library from multiple CDN sources
         var pdfLibScript = document.createElement('script');
-        pdfLibScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/3.17.1/pdf-lib.min.js';
+        pdfLibScript.src = 'https://unpkg.com/pdf-lib@3.17.1/dist/pdf-lib.min.js';
         pdfLibScript.onload = function() {
             console.log('pdf-lib loaded successfully');
             initializeForm();
         };
         pdfLibScript.onerror = function() {
-            console.error('Failed to load pdf-lib');
-            showMessage('Error loading PDF library. Please refresh the page.', 'error');
+            console.error('Failed to load pdf-lib from unpkg, trying jsdelivr');
+            var fallbackScript = document.createElement('script');
+            fallbackScript.src = 'https://cdn.jsdelivr.net/npm/pdf-lib@3.17.1/dist/pdf-lib.min.js';
+            fallbackScript.onload = function() {
+                console.log('pdf-lib loaded from fallback CDN');
+                initializeForm();
+            };
+            fallbackScript.onerror = function() {
+                console.error('Failed to load pdf-lib from all sources');
+                showMessage('Error loading PDF library. Please refresh the page.', 'error');
+            };
+            document.head.appendChild(fallbackScript);
         };
         document.head.appendChild(pdfLibScript);
 
