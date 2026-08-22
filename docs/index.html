@@ -6,7 +6,6 @@
     <title>Vital Care Referral Form Filler</title>
     <style>
         * { box-sizing: border-box; }
-        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -14,7 +13,6 @@
             padding: 20px;
             margin: 0;
         }
-        
         .container {
             max-width: 1000px;
             margin: 0 auto;
@@ -23,34 +21,16 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             overflow: hidden;
         }
-        
         .header {
             background: linear-gradient(135deg, #087eae 0%, #066f9b 100%);
             color: white;
             padding: 40px 30px;
             text-align: center;
         }
-        
-        .header h1 {
-            margin: 0;
-            font-size: 32px;
-            font-weight: 700;
-        }
-        
-        .header p {
-            margin: 10px 0 0;
-            font-size: 15px;
-            opacity: 0.95;
-        }
-        
-        .content {
-            padding: 40px;
-        }
-        
-        .form-section {
-            margin-bottom: 40px;
-        }
-        
+        .header h1 { margin: 0; font-size: 32px; font-weight: 700; }
+        .header p { margin: 10px 0 0; font-size: 15px; opacity: 0.95; }
+        .content { padding: 40px; }
+        .form-section { margin-bottom: 40px; }
         .form-section h2 {
             font-size: 18px;
             font-weight: 700;
@@ -59,28 +39,14 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #dff5fc;
         }
-        
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
         }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .form-group label {
-            font-weight: 600;
-            color: #173042;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; color: #173042; font-size: 14px; margin-bottom: 8px; }
+        .form-group input, .form-group select, .form-group textarea {
             padding: 10px 12px;
             border: 1px solid #d8e7ee;
             border-radius: 6px;
@@ -88,32 +54,14 @@
             font-size: 14px;
             color: #173042;
         }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #087eae;
             box-shadow: 0 0 0 3px rgba(8, 126, 174, 0.1);
         }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        .required::after {
-            content: " *";
-            color: #f5222d;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-top: 40px;
-        }
-        
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .required::after { content: " *"; color: #f5222d; }
+        .button-group { display: flex; gap: 12px; justify-content: center; margin-top: 40px; }
         button {
             padding: 12px 32px;
             border: none;
@@ -123,34 +71,11 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        
-        .btn-primary {
-            background: #087eae;
-            color: white;
-            box-shadow: 0 4px 12px rgba(8,126,174,0.3);
-        }
-        
-        .btn-primary:hover:not(:disabled) {
-            background: #066f9b;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(8,126,174,0.4);
-        }
-        
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .btn-secondary {
-            background: #f3fbfe;
-            color: #102b3f;
-            border: 2px solid #102b3f;
-        }
-        
-        .btn-secondary:hover {
-            background: #dff5fc;
-        }
-        
+        .btn-primary { background: #087eae; color: white; box-shadow: 0 4px 12px rgba(8,126,174,0.3); }
+        .btn-primary:hover:not(:disabled) { background: #066f9b; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(8,126,174,0.4); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-secondary { background: #f3fbfe; color: #102b3f; border: 2px solid #102b3f; }
+        .btn-secondary:hover { background: #dff5fc; }
         .alert {
             padding: 16px 20px;
             border-radius: 6px;
@@ -158,32 +83,15 @@
             font-size: 14px;
             border-left: 4px solid;
         }
-        
-        .alert-info {
-            background: #e7f5fc;
-            color: #087eae;
-            border-left-color: #087eae;
-        }
-        
-        .alert-success {
-            background: #e6f7ed;
-            color: #155724;
-            border-left-color: #28a745;
-        }
-        
-        .alert-error {
-            background: #fdeaea;
-            color: #721c24;
-            border-left-color: #f5222d;
-        }
-        
+        .alert-info { background: #e7f5fc; color: #087eae; border-left-color: #087eae; }
+        .alert-success { background: #e6f7ed; color: #155724; border-left-color: #28a745; }
+        .alert-error { background: #fdeaea; color: #721c24; border-left-color: #f5222d; }
         .referral-types {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 10px;
             margin-top: 12px;
         }
-        
         .referral-btn {
             padding: 12px 16px;
             border: 2px solid #d8e7ee;
@@ -196,17 +104,8 @@
             text-align: center;
             transition: all 0.2s ease;
         }
-        
-        .referral-btn:hover {
-            border-color: #087eae;
-            color: #087eae;
-        }
-        
-        .referral-btn.active {
-            background: #087eae;
-            color: white;
-            border-color: #087eae;
-        }
+        .referral-btn:hover { border-color: #087eae; color: #087eae; }
+        .referral-btn.active { background: #087eae; color: white; border-color: #087eae; }
     </style>
 </head>
 <body>
@@ -220,7 +119,6 @@
             <div id="messages"></div>
             
             <form id="referralForm">
-                <!-- Referral Type -->
                 <div class="form-section">
                     <label style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 12px;">
                         Select Referral Type <span style="color: #f5222d;">*</span>
@@ -229,7 +127,6 @@
                     <input type="hidden" id="referralType" name="referralType" required>
                 </div>
 
-                <!-- Patient Information -->
                 <div class="form-section">
                     <h2>Patient Information</h2>
                     <div class="form-grid">
@@ -288,7 +185,6 @@
                     </div>
                 </div>
 
-                <!-- Insurance -->
                 <div class="form-section">
                     <h2>Insurance Information</h2>
                     <div class="form-grid">
@@ -307,7 +203,6 @@
                     </div>
                 </div>
 
-                <!-- Prescriber -->
                 <div class="form-section">
                     <h2>Prescriber Information</h2>
                     <div class="form-grid">
@@ -338,7 +233,6 @@
                     </div>
                 </div>
 
-                <!-- Clinical -->
                 <div class="form-section">
                     <h2>Clinical Information</h2>
                     <div class="form-grid">
@@ -371,7 +265,6 @@
                     </div>
                 </div>
 
-                <!-- Buttons -->
                 <div class="button-group">
                     <button type="reset" class="btn-secondary">Clear Form</button>
                     <button type="submit" class="btn-primary" id="submitBtn">Download Filled PDF</button>
@@ -380,8 +273,20 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/3.17.1/pdf-lib.min.js"></script>
     <script>
+        // Load pdf-lib library
+        var pdfLibScript = document.createElement('script');
+        pdfLibScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/3.17.1/pdf-lib.min.js';
+        pdfLibScript.onload = function() {
+            console.log('pdf-lib loaded successfully');
+            initializeForm();
+        };
+        pdfLibScript.onerror = function() {
+            console.error('Failed to load pdf-lib');
+            showMessage('Error loading PDF library. Please refresh the page.', 'error');
+        };
+        document.head.appendChild(pdfLibScript);
+
         const REFERRAL_TYPES = [
             { id: 'IG', label: 'Immunoglobulin (IG)', file: 'IG.pdf' },
             { id: 'IVABx', label: 'IV Antibiotics', file: 'IVABx.pdf' },
@@ -408,7 +313,9 @@
             container.appendChild(div);
         }
 
-        function initButtons() {
+        function initializeForm() {
+            console.log('Initializing form...');
+            
             const container = document.getElementById('referralTypes');
             REFERRAL_TYPES.forEach(function(type) {
                 const btn = document.createElement('button');
@@ -426,9 +333,12 @@
                 container.appendChild(btn);
             });
             showMessage('✓ Ready! Select a form type and fill in the details.', 'info');
+
+            // Add form submit handler
+            document.getElementById('referralForm').addEventListener('submit', handleFormSubmit);
         }
 
-        document.getElementById('referralForm').addEventListener('submit', function(e) {
+        function handleFormSubmit(e) {
             e.preventDefault();
             
             if (!document.getElementById('referralType').value) {
@@ -451,17 +361,24 @@
                 return;
             }
 
-            fetch(PDF_PATH + typeInfo.file)
+            const pdfUrl = PDF_PATH + typeInfo.file;
+            console.log('Loading PDF from:', pdfUrl);
+            
+            fetch(pdfUrl)
                 .then(function(response) {
-                    if (!response.ok) throw new Error('Failed to load PDF');
+                    console.log('Response status:', response.status);
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
                     return response.arrayBuffer();
                 })
                 .then(function(pdfBytes) {
+                    console.log('PDF loaded, size:', pdfBytes.byteLength, 'bytes');
                     return PDFLib.PDFDocument.load(pdfBytes);
                 })
                 .then(function(pdfDoc) {
+                    console.log('PDF parsed successfully');
                     const form = pdfDoc.getForm();
                     const fields = form.getFields();
+                    console.log('Found', fields.length, 'fields');
                     
                     fields.forEach(function(field) {
                         const fieldName = field.getName();
@@ -494,7 +411,7 @@
                                     }
                                 }
                             } catch (err) {
-                                console.log('Could not fill field: ' + fieldName);
+                                console.log('Could not fill field:', fieldName);
                             }
                         }
                     });
@@ -502,6 +419,7 @@
                     return pdfDoc.save();
                 })
                 .then(function(filledPdfBytes) {
+                    console.log('PDF saved, size:', filledPdfBytes.byteLength, 'bytes');
                     const blob = new Blob([filledPdfBytes], { type: 'application/pdf' });
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
@@ -512,17 +430,16 @@
                     document.body.removeChild(link);
                     URL.revokeObjectURL(url);
                     
+                    console.log('Download complete');
                     showMessage('✓ PDF downloaded! Print and fax to (513) 780-5881', 'success');
                     submitBtn.disabled = false;
                 })
                 .catch(function(error) {
+                    console.error('Error:', error.message);
                     showMessage('✗ Error: ' + error.message, 'error');
-                    console.error(error);
                     submitBtn.disabled = false;
                 });
-        });
-
-        initButtons();
+        }
     </script>
 </body>
 </html>
