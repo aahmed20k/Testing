@@ -57,17 +57,17 @@
   <div class="header">
     <h1>Immunoglobulin Referral Form</h1>
     <p>Vital Care of West Chester &middot; print and fax to (513) 780-5881</p>
-    <div class="build">build v5 &middot; 2026-08-22 &middot; verified IG mapping</div>
+    <div class="build">build v6 &middot; 2026-08-22 &middot; verified IG mapping</div>
   </div>
   <div class="content">
     <div id="messages"></div>
-    <form id="f">
+    <form id="f" novalidate onsubmit="return false">
 
       <h2>Patient</h2>
       <div class="grid">
-        <div class="fg"><label class="req">Last Name</label><input type="text" name="lastName" required></div>
-        <div class="fg"><label class="req">First Name</label><input type="text" name="firstName" required></div>
-        <div class="fg"><label class="req">Date of Birth</label><input type="text" name="dob" placeholder="MM/DD/YYYY" required></div>
+        <div class="fg"><label class="req">Last Name</label><input type="text" name="lastName"></div>
+        <div class="fg"><label class="req">First Name</label><input type="text" name="firstName"></div>
+        <div class="fg"><label class="req">Date of Birth</label><input type="text" name="dob" placeholder="MM/DD/YYYY"></div>
         <div class="fg"><label>Sex</label><select name="gender"><option value="">—</option><option value="M">Male</option><option value="F">Female</option></select></div>
         <div class="fg wide"><label>Address</label><input type="text" name="address"></div>
         <div class="fg"><label>City</label><input type="text" name="city"></div>
@@ -82,7 +82,7 @@
 
       <h2>Prescriber &amp; Practice</h2>
       <div class="grid">
-        <div class="fg"><label class="req">Prescriber Name</label><input type="text" name="prescriberName" required></div>
+        <div class="fg"><label class="req">Prescriber Name</label><input type="text" name="prescriberName"></div>
         <div class="fg"><label>NPI</label><input type="text" name="npi"></div>
         <div class="fg"><label>Nurse / Key Contact</label><input type="text" name="nurseContact"></div>
         <div class="fg wide"><label>Practice</label><input type="text" name="practice"></div>
@@ -185,12 +185,295 @@
 
       <div class="bar">
         <label class="chk" style="margin-right:auto"><input type="checkbox" id="flatten" checked> Flatten before download</label>
+        <button type="button" class="btn-secondary" id="clearBtn">Clear form</button>
+        <span style="width:18px"></span>
         <button type="button" class="btn-secondary" id="labelBtn">Field-map test PDF</button>
-        <button type="reset" class="btn-secondary">Clear</button>
-        <button type="submit" class="btn-primary" id="go">Download filled PDF</button>
+        <button type="button" class="btn-primary" id="go">Download filled PDF</button>
       </div>
       <div class="note">Signature and date are left blank — the prescriber must sign by hand.</div>
     </form>
   </div>
 </div>
 <script src="./pdf-lib.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  // ==================================================================
+  // IG.pdf — verified against the field-map test PDF, 2026-08-22
+  // ==================================================================
+
+  var PHARMACY = {
+    'Date 23': 'Vital Care of West Chester',
+    'Date 24': '8731 Union Centre Blvd.',
+    'Date 25': 'West Chester, OH 45069',
+    'Date 26': '(513) 780-5880',
+    'Date 27': '(513) 780-5881',
+    'Date 28': ''
+  };
+
+  var TEXT_MAP = {
+    lastName:'Date 29', firstName:'Date 30', dob:'Date 31',
+    address:'Date 32', city:'Date 33', state:'Date 34', zip:'Date 35',
+    phone:'Date 36', ssn:'Date 37',
+
+    practice:'Date 44', practiceAddress:'Date 45', practiceCity:'Date 46',
+    practiceState:'Date 47', practiceZip:'Date 48',
+    prescriberName:'Date 49', npi:'Date 50', nurseContact:'Date 51',
+    prescriberPhone:'Date 52', prescriberFax:'Date 53', prescriberEmail:'Date 54',
+
+    insurancePlan:'Date 38', policyNumber:'Date 40', planId:'Date 42',
+    insurancePlan2:'Date 39', policyNumber2:'Date 41', planId2:'Date 43',
+
+    weight:'Date 20', height:'Date 21', allergies:'Date 22',
+    ivAccess:'Date 19', labFrequency:'Date 16',
+    anaphylaxisPrescriberText:'Date 17', flushingPrescriberText:'Date 18',
+    notes:'Date 15',
+
+    productPharmacist:'Date 3', productPhysician:'Date 4',
+    doseOtherGrams:'Date 5', ivDailyDays:'Date 6', repeatWeeks:'Date 7', cycles:'Date 8',
+    ivOtherText:'Date 9',
+    scigGrams:'Date 10', scigMls:'Date 11', scigSites:'Date 12',
+    scigTimesPerWeek:'Date 13', scigMonths:'Date 14',
+    hydration:'Date 2', otherPremedsText:'Date 1'
+  };
+
+  var CHECK_MAP = {
+    ivAccessChk:'Check Box 15', nursePIV:'Check Box 16',
+    labCBC:'Check Box 7', labCMP:'Check Box 8', labIgG:'Check Box 9', labQuantIg:'Check Box 10',
+    anaphylaxisPharmacy:'Check Box 11', anaphylaxisPrescriber:'Check Box 12',
+    flushingPharmacy:'Check Box 13', flushingPrescriber:'Check Box 14',
+    productPharmacistChk:'Check Box 44', productPhysicianChk:'Check Box 45',
+    ivig:'Check Box 3', scig:'Check Box 6',
+    dose04:'Check Box 46', dose1:'Check Box 47', dose2:'Check Box 48', doseOther:'Check Box 49',
+    ivDaily:'Check Box 4', ivOther:'Check Box 5',
+    premeds:'Pre-Medications', otherPremeds:'Other Pre-medications'
+  };
+
+  var RADIO_MAP = {
+    gender: { field:'Gender', choices:{ M:'Choice1', F:'Choice2' } }
+  };
+
+  var DX_NEURO = [
+    ['Check Box 17','Chronic inflammatory demyelinating polyneuropathy (CIDP)','G61.81'],
+    ['Check Box 18','Guillain-Barr\u00e9 syndrome (GBS)','G61.0'],
+    ['Check Box 19','Multifocal motor neuropathy','G61.82'],
+    ['Check Box 20','Myasthenia gravis (MG)','G70.0'],
+    ['Check Box 43','Myasthenia gravis with (acute) exacerbation','G70.01'],
+    ['Check Box 22','Autoimmune encephalopathy','G04.81'],
+    ['Check Box 21','Inflammatory neuropathies','G61.89'],
+    ['Check Box 23','Relapsing remitting multiple sclerosis (RRMS)','G35'],
+    ['Check Box 24','Stiff person syndrome','G25.82'],
+    ['Check Box 25','Idiopathic thrombocytopenic purpura','D69.3'],
+    ['Check Box 26','Dermatopolymyositis','M33.90'],
+    ['Check Box 27','Polymyositis','M33.20']
+  ];
+
+  var DX_IMMUNE = [
+    ['Check Box 28','CVID with predominant immunoregulatory T-cell disorders','D83.1'],
+    ['Check Box 29','Combined immunodeficiency, unspecified','D81.9'],
+    ['Check Box 30','Common variable immunodeficiency, unspecified','D83.9'],
+    ['Check Box 31','Hereditary hypogammaglobulinemia','D80.0'],
+    ['Check Box 32','Immunodeficiency with increased IgM','D80.5'],
+    ['Check Box 33','Nonfamilial hypogammaglobulinemia','D80.1'],
+    ['Check Box 34','Other combined immunodeficiencies','D81.89'],
+    ['Check Box 35','Other common variable immunodeficiencies','D83.9'],
+    ['Check Box 36','Pemphigoid','L12.0'],
+    ['Check Box 37','Pemphigus','L10.9'],
+    ['Check Box 38','SCID with low or normal B-cell numbers','D81.2'],
+    ['Check Box 39','SCID with T- and B-cell numbers','D81.1'],
+    ['Check Box 40','Selective deficiency of IgG subclasses','D80.3'],
+    ['Check Box 41','Specific antibody deficiency','D80.6'],
+    ['Check Box 42','Systemic lupus erythematosus (SLE)','M32.9']
+  ];
+
+  var PDF_FILE = './pdfs/IG.pdf';
+
+  function msg(html, kind) {
+    document.getElementById('messages').innerHTML =
+      '<div class="alert alert-' + (kind || 'info') + '">' + html + '</div>';
+  }
+
+  function buildDx(containerId, list) {
+    var box = document.getElementById(containerId);
+    list.forEach(function (row) {
+      var div = document.createElement('div');
+      div.className = 'dxrow';
+      var id = row[0].replace(/\s+/g, '_');
+      div.innerHTML = '<input type="checkbox" id="' + id + '" data-dx="' + row[0] + '">' +
+                      '<label for="' + id + '" style="flex:1;cursor:pointer">' + row[1] + '</label>' +
+                      '<span class="icd">' + row[2] + '</span>';
+      box.appendChild(div);
+    });
+  }
+
+  function loadPdf() {
+    return fetch(PDF_FILE).then(function (res) {
+      if (!res.ok) throw new Error('Could not load ' + PDF_FILE + ' (HTTP ' + res.status + ')');
+      return res.arrayBuffer();
+    }).then(function (b) { return PDFLib.PDFDocument.load(b); });
+  }
+
+  function download(bytes, name) {
+    var url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+    var a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function collect() {
+    var d = {};
+    var form = document.getElementById('f');
+    var els = form.querySelectorAll('input[name], select[name], textarea[name]');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (el.type === 'checkbox') d[el.name] = el.checked;
+      else d[el.name] = el.value;
+    }
+    d._dx = [];
+    var dxs = form.querySelectorAll('[data-dx]');
+    for (var j = 0; j < dxs.length; j++) {
+      if (dxs[j].checked) d._dx.push(dxs[j].getAttribute('data-dx'));
+    }
+    return d;
+  }
+
+  function fill(doc, data, report) {
+    var form = doc.getForm();
+
+    function setText(pdfName, value) {
+      if (value === undefined || value === null || value === '') return;
+      try { form.getTextField(pdfName).setText(String(value)); report.filled++; }
+      catch (e) { report.problems.push(pdfName); }
+    }
+    function tick(pdfName) {
+      try { form.getCheckBox(pdfName).check(); report.filled++; }
+      catch (e) { report.problems.push(pdfName); }
+    }
+
+    // pharmacy header — always the same
+    Object.keys(PHARMACY).forEach(function (k) { setText(k, PHARMACY[k]); });
+
+    // text fields
+    Object.keys(TEXT_MAP).forEach(function (key) { setText(TEXT_MAP[key], data[key]); });
+
+    // checkboxes
+    Object.keys(CHECK_MAP).forEach(function (key) { if (data[key]) tick(CHECK_MAP[key]); });
+
+    // diagnosis checkboxes
+    data._dx.forEach(function (pdfName) { tick(pdfName); });
+
+    // sex radio
+    Object.keys(RADIO_MAP).forEach(function (key) {
+      var v = data[key];
+      if (!v) return;
+      var spec = RADIO_MAP[key];
+      try {
+        var g = form.getRadioGroup(spec.field);
+        var target = spec.choices[v];
+        var opts = g.getOptions();
+        if (opts.indexOf(target) === -1) {
+          target = opts[Object.keys(spec.choices).indexOf(v)];
+        }
+        if (target) { g.select(target); report.filled++; }
+      } catch (e) { report.problems.push(spec.field); }
+    });
+  }
+
+  var REQUIRED = [
+    ['lastName', 'Last Name'],
+    ['firstName', 'First Name'],
+    ['dob', 'Date of Birth'],
+    ['prescriberName', 'Prescriber Name']
+  ];
+
+  function submit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    var data0 = collect();
+    var missing = [];
+    REQUIRED.forEach(function (r) { if (!data0[r[0]]) missing.push(r[1]); });
+    if (missing.length) {
+      msg('<strong>Still needed:</strong> ' + missing.join(', ') +
+          '. Fill those in and click Download again.', 'warn');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    var btn = document.getElementById('go');
+    btn.disabled = true;
+    msg('Generating PDF\u2026', 'info');
+
+    var data = data0;
+    var report = { filled: 0, problems: [] };
+
+    loadPdf().then(function (doc) {
+      fill(doc, data, report);
+      if (document.getElementById('flatten').checked) {
+        try { doc.getForm().flatten(); } catch (e) { console.warn('flatten failed', e); }
+      }
+      return doc.save();
+    }).then(function (bytes) {
+      download(bytes, 'IG_referral_' + (data.lastName || 'patient') + '.pdf');
+      var html = '<strong>Downloaded.</strong> Print and fax to (513) 780-5881. Filled ' +
+                 report.filled + ' field' + (report.filled === 1 ? '' : 's') + '.';
+      if (report.problems.length) {
+        html += '<br><strong>Could not write:</strong> ' + report.problems.join(', ');
+      }
+      msg(html, report.problems.length ? 'warn' : 'success');
+      btn.disabled = false;
+    }).catch(function (err) {
+      console.error(err);
+      msg('Error: ' + err.message, 'error');
+      btn.disabled = false;
+    });
+  }
+
+  function labelPdf() {
+    msg('Building field-map test PDF\u2026', 'info');
+    loadPdf().then(function (doc) {
+      var form = doc.getForm();
+      form.getFields().forEach(function (f) {
+        try {
+          if (typeof f.setText === 'function') {
+            var m = f.getName().match(/(\d+)\s*$/);
+            f.setText(m ? m[1] : f.getName().slice(0, 3));
+            try { f.setFontSize(7); } catch (e) {}
+          } else if (typeof f.check === 'function') {
+            f.check();
+          }
+        } catch (e) {}
+      });
+      try { form.flatten(); } catch (e) {}
+      return doc.save();
+    }).then(function (bytes) {
+      download(bytes, 'FIELDMAP_IG.pdf');
+      msg('Field-map test PDF downloaded.', 'success');
+    }).catch(function (err) {
+      msg('Error: ' + err.message, 'error');
+    });
+  }
+
+  if (typeof PDFLib === 'undefined') {
+    msg('pdf-lib.min.js did not load. It must sit in the same folder as index.html.', 'error');
+  } else {
+    window.onerror = function (m, src, line) {
+      msg('Script error: ' + m + ' (line ' + line + ')', 'error');
+    };
+    buildDx('dxNeuro', DX_NEURO);
+    buildDx('dxImmune', DX_IMMUNE);
+    document.getElementById('go').addEventListener('click', submit);
+    document.getElementById('labelBtn').addEventListener('click', labelPdf);
+    document.getElementById('clearBtn').addEventListener('click', function () {
+      document.getElementById('f').reset();
+      var dxs = document.querySelectorAll('[data-dx]');
+      for (var i = 0; i < dxs.length; i++) dxs[i].checked = false;
+      msg('Form cleared.', 'info');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    msg('Fill in what you have and click Download. Blank fields stay blank on the PDF.', 'info');
+  }
+})();
+</script>
+</body>
+</html>
