@@ -137,7 +137,7 @@
         }
         
         .btn-primary:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
         }
         
@@ -436,12 +436,90 @@
                 return;
             }
 
-            showMessage('Form submitted! (PDF filling requires internet connection and GitHub access)', 'info');
-            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            showMessage('Generating PDF...', 'info');
+
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData);
+            const formType = data.referralType;
+            const typeInfo = REFERRAL_TYPES.find(function(t) { return t.id === formType; });
             
-            showMessage('Summary generated for ' + data.lastName + ' - Form ready to print and fax to (513) 780-5881', 'success');
+            if (!typeInfo) {
+                showMessage('Invalid form type', 'error');
+                submitBtn.disabled = false;
+                return;
+            }
+
+            fetch(GITHUB_RAW_URL + typeInfo.file)
+                .then(function(response) {
+                    if (!response.ok) throw new Error('Failed to load PDF');
+                    return response.arrayBuffer();
+                })
+                .then(function(pdfBytes) {
+                    return PDFLib.PDFDocument.load(pdfBytes);
+                })
+                .then(function(pdfDoc) {
+                    const form = pdfDoc.getForm();
+                    const fields = form.getFields();
+                    
+                    fields.forEach(function(field) {
+                        const fieldName = field.getName();
+                        let value = '';
+                        
+                        if (data[fieldName]) {
+                            value = data[fieldName];
+                        } else {
+                            for (const key in data) {
+                                if (data.hasOwnProperty(key)) {
+                                    const val = data[key];
+                                    if (fieldName.toLowerCase().indexOf(key.toLowerCase()) !== -1 || 
+                                        key.toLowerCase().indexOf(fieldName.toLowerCase()) !== -1) {
+                                        value = val;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if (value) {
+                            try {
+                                const maybeField = form.getFieldMaybe(fieldName);
+                                if (maybeField) {
+                                    const fieldType = field.getType();
+                                    if (fieldType === 'radio' || fieldType === 'checkbox') {
+                                        maybeField.select([value]);
+                                    } else {
+                                        maybeField.setText(String(value));
+                                    }
+                                }
+                            } catch (err) {
+                                console.log('Could not fill field: ' + fieldName);
+                            }
+                        }
+                    });
+                    
+                    return pdfDoc.save();
+                })
+                .then(function(filledPdfBytes) {
+                    const blob = new Blob([filledPdfBytes], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'referral_' + formType + '_' + (data.lastName || 'patient') + '.pdf';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    
+                    showMessage('✓ PDF downloaded! Print and fax to (513) 780-5881', 'success');
+                    submitBtn.disabled = false;
+                })
+                .catch(function(error) {
+                    showMessage('✗ Error: ' + error.message, 'error');
+                    console.error(error);
+                    submitBtn.disabled = false;
+                });
         });
 
         initButtons();
