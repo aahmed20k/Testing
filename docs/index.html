@@ -273,29 +273,9 @@
         </div>
     </div>
 
+    <script src="./pdf-lib.min.js"></script>
     <script>
-        // Load pdf-lib library from multiple CDN sources
-        var pdfLibScript = document.createElement('script');
-        pdfLibScript.src = 'https://unpkg.com/pdf-lib@3.17.1/dist/pdf-lib.min.js';
-        pdfLibScript.onload = function() {
-            console.log('pdf-lib loaded successfully');
-            initializeForm();
-        };
-        pdfLibScript.onerror = function() {
-            console.error('Failed to load pdf-lib from unpkg, trying jsdelivr');
-            var fallbackScript = document.createElement('script');
-            fallbackScript.src = 'https://cdn.jsdelivr.net/npm/pdf-lib@3.17.1/dist/pdf-lib.min.js';
-            fallbackScript.onload = function() {
-                console.log('pdf-lib loaded from fallback CDN');
-                initializeForm();
-            };
-            fallbackScript.onerror = function() {
-                console.error('Failed to load pdf-lib from all sources');
-                showMessage('Error loading PDF library. Please refresh the page.', 'error');
-            };
-            document.head.appendChild(fallbackScript);
-        };
-        document.head.appendChild(pdfLibScript);
+        // pdf-lib is hosted locally in this repo - no CDN needed
 
         const REFERRAL_TYPES = [
             { id: 'IG', label: 'Immunoglobulin (IG)', file: 'IG.pdf' },
@@ -449,6 +429,14 @@
                     showMessage('✗ Error: ' + error.message, 'error');
                     submitBtn.disabled = false;
                 });
+        }
+
+        // Start up
+        if (typeof PDFLib === 'undefined') {
+            showMessage('Error: pdf-lib.min.js did not load. Make sure it is in the same folder as index.html.', 'error');
+        } else {
+            console.log('pdf-lib loaded locally');
+            initializeForm();
         }
     </script>
 </body>
