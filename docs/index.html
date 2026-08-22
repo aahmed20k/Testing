@@ -64,6 +64,7 @@
         </div>
         <div id="inspector">
           <button type="button" class="btn-secondary" id="inspectBtn">Inspect this form's PDF fields</button>
+          <button type="button" class="btn-secondary" id="labelBtn">Download field-map test PDF</button>
           <div id="inspectorOut"></div>
         </div>
       </div>
@@ -184,7 +185,7 @@
   // choices maps a web-form value to the PDF export value.
   var CHOICE_MAPS = {
     IG: {
-      gender: { field: 'Gender', choices: { M: '/0', F: '/1' } }
+      gender: { field: 'Gender', choices: { M: 'Choice1', F: 'Choice2' } }
     }
   };
 
@@ -257,6 +258,40 @@
     });
   }
 
+  // ---------------- field type + geometry helpers ----------------
+  function fieldKind(f) {
+    if (typeof f.setText === 'function') return 'text';
+    if (typeof f.check === 'function') return 'check';
+    if (typeof f.getOptions === 'function') return 'choice';
+    return 'other';
+  }
+
+  function shortLabel(name) {
+    var m = name.match(/(\d+)\s*$/);
+    if (m) return m[1];
+    return name.slice(0, 3);
+  }
+
+  function geometry(doc, f) {
+    var out = [];
+    try {
+      var pages = doc.getPages();
+      f.acroField.getWidgets().forEach(function (w) {
+        var r = w.getRectangle();
+        var page = '?';
+        try {
+          var ref = w.P();
+          for (var i = 0; i < pages.length; i++) {
+            if (pages[i].ref === ref) { page = i + 1; break; }
+          }
+        } catch (e) {}
+        out.push('p' + page + ' x' + Math.round(r.x) + ' y' + Math.round(r.y) +
+                 ' w' + Math.round(r.width) + ' h' + Math.round(r.height));
+      });
+    } catch (e) {}
+    return out.join(' | ');
+  }
+
   // ---------------- field inspector ----------------
   function inspect() {
     var id = document.getElementById('referralType').value;
@@ -267,11 +302,13 @@
 
     loadPdf(id).then(function (doc) {
       var fields = doc.getForm().getFields();
-      var lines = [typeInfo(id).file + ' \u2014 ' + fields.length + ' fields\n'];
+      var lines = [typeInfo(id).file + ' \u2014 ' + fields.length + ' fields',
+                   'kind      label   name                      position', ''];
       fields.forEach(function (f) {
-        var type = f.constructor.name.replace('PDF', '');
-        var line = type + '  \u2192  "' + f.getName() + '"';
-        if (typeof f.getOptions === 'function') {
+        var name = f.getName();
+        var kind = fieldKind(f);
+        var line = pad(kind, 9) + pad(shortLabel(name), 7) + pad('"' + name + '"', 26) + geometry(doc, f);
+        if (kind === 'choice') {
           try { line += '   options: ' + JSON.stringify(f.getOptions()); } catch (e) {}
         }
         lines.push(line);
@@ -280,6 +317,66 @@
     }).catch(function (err) {
       out.textContent = 'Error: ' + err.message;
     });
+  }
+
+  function pad(s, n) {
+    s = String(s);
+    while (s.length < n) s += ' ';
+    return s;
+  }
+
+  // ---------------- field-map test PDF ----------------
+  // Stamps every text field with its own number and ticks every checkbox,
+  // so a single look at the output shows which field sits where.
+  function labelPdf() {
+    var id = document.getElementById('referralType').value;
+    if (!id) { msg('Pick a referral type first.', 'error'); return; }
+    msg('Building field-map test PDF\u2026', 'info');
+
+    loadPdf(id).then(function (doc) {
+      var form = doc.getForm();
+      var fields = form.getFields();
+      var texts = 0, checks = 0;
+
+      fields.forEach(function (f) {
+        var kind = fieldKind(f);
+        try {
+          if (kind === 'text') {
+            f.setText(shortLabel(f.getName()));
+            try { f.setFontSize(7); } catch (e) {}
+            texts++;
+          } else if (kind === 'check') {
+            f.check();
+            checks++;
+          }
+        } catch (e) {}
+      });
+
+      try { form.flatten(); } catch (e) {}
+      return doc.save().then(function (bytes) {
+        return { bytes: bytes, texts: texts, checks: checks };
+      });
+    }).then(function (r) {
+      download(r.bytes, 'FIELDMAP_' + id + '.pdf');
+      msg('<strong>Field-map test PDF downloaded.</strong> Every text box now shows its own field number ' +
+          '(' + r.texts + ' text fields, ' + r.checks + ' checkboxes ticked). Open it and you can read off ' +
+          'exactly which "Date N" belongs to which label on the form.', 'success');
+    }).catch(function (err) {
+      console.error(err);
+      msg('Error: ' + err.message, 'error');
+    });
+  }
+
+  function download(bytes, filename) {
+    var blob = new Blob([bytes], { type: 'application/pdf' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   // ---------------- fill and download ----------------
@@ -347,15 +444,7 @@
       }
       return doc.save();
     }).then(function (bytes) {
-      var blob = new Blob([bytes], { type: 'application/pdf' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = 'referral_' + id + '_' + (data.lastName || 'patient') + '.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      download(bytes, 'referral_' + id + '_' + (data.lastName || 'patient') + '.pdf');
 
       var report = '<strong>Downloaded.</strong> Print and fax to (513) 780-5881.<br>' +
                    'Filled ' + filled.length + ' field' + (filled.length === 1 ? '' : 's') + '.';
@@ -377,6 +466,7 @@
   }
   buildButtons();
   document.getElementById('inspectBtn').addEventListener('click', inspect);
+  document.getElementById('labelBtn').addEventListener('click', labelPdf);
   document.getElementById('referralForm').addEventListener('submit', submit);
   msg('Pick a referral type to begin.', 'info');
 })();
