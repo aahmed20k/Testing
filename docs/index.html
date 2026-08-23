@@ -131,7 +131,7 @@
     <div class="head">
       <h1>Vital Care Referral</h1>
       <p>Vital Care of West Chester &middot; complete the steps, then print and fax to (513) 780-5881</p>
-      <div class="build">build v11 &middot; 2026-08-22</div>
+      <div class="build">build v12 &middot; 2026-08-22</div>
     </div>
     <div class="steps" id="steps"></div>
     <div class="body">
@@ -394,11 +394,28 @@
     });
   }
 
+  // export values are what the PDF stores; these are what a person should read
+  var VALUE_TEXT = { 'Y':'Yes', 'N':'No', 'M':'Male', 'F':'Female',
+                     'kg':'kg', 'lbs':'lbs', 'ft':'ft', 'in':'in' };
+  var MARITAL = { 'S':'Single', 'D':'Divorced', 'M':'Married', 'W':'Widowed' };
+
+  function optionText(f, o, i) {
+    var raw = o.replace(/^\//, '');
+    if (/marital/i.test(f.l) && MARITAL[raw]) return MARITAL[raw];
+    if (/gender|sex/i.test(f.l)) {
+      if (raw === 'M' || raw === 'F') return VALUE_TEXT[raw];
+      if (/^Choice\d$/.test(raw)) return i === 0 ? 'Male' : 'Female';
+    }
+    if (VALUE_TEXT[raw]) return VALUE_TEXT[raw];
+    if (/^Choice(\d)$/.test(raw)) return 'Option ' + RegExp.$1;
+    return raw.charAt(0).toUpperCase() + raw.slice(1);
+  }
+
   function textField(f) {
     var id = 'fld_' + f._i;
     var d = el('div','fg' + (f.l.length > 38 ? ' wide' : ''));
     if (f.k === 'radio' && f.o) {
-      var opts = f.o.map(function(o){ return '<option value="'+esc(o)+'">'+esc(o.replace(/^\//,''))+'</option>'; }).join('');
+      var opts = f.o.map(function(o, i){ return '<option value="'+esc(o)+'">'+esc(optionText(f, o, i))+'</option>'; }).join('');
       d.innerHTML = '<label for="'+id+'">'+esc(f.l)+'</label><select id="'+id+'"><option value="">—</option>'+opts+'</select>';
     } else if (/note|comment|instruction|direction|additional/i.test(f.l)) {
       d.className = 'fg wide';
@@ -538,6 +555,9 @@
           if (f.k === 'check') {
             var e = document.getElementById('fld_' + f._i);
             if (e && e.checked) { obj.check(); filled++; }
+          } else if (f.k === 'radio') {
+            var sel = document.getElementById('fld_' + f._i);
+            if (sel && sel.value) { obj.select(sel.value); filled++; }
           } else {
             var t = valueOf(f);
             if (t) {
@@ -599,5 +619,171 @@
   }
 })();
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST DATA BUTTON — DELETE THIS ENTIRE BLOCK BEFORE PRODUCTION USE.
+     Everything for the feature lives between these two comment markers:
+     the styles, the button, and its logic. Nothing outside this block
+     references it, so removing it leaves the app untouched.
+     ═══════════════════════════════════════════════════════════════════ -->
+<style>
+  #testDataBar{position:fixed;right:16px;bottom:16px;z-index:9999;display:flex;gap:8px;align-items:center}
+  #testDataBar button{padding:9px 16px;border-radius:6px;border:1px solid #d9a327;background:#fdf6e6;
+    color:#7a5410;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;
+    box-shadow:0 3px 10px rgba(16,43,63,.14)}
+  #testDataBar button:hover{background:#f8ecd0}
+  #testDataBar .tag{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+    color:#a07a1c;background:#fdf6e6;border:1px solid #ecd9a8;border-radius:4px;padding:4px 7px}
+</style>
+<div id="testDataBar">
+  <span class="tag">Testing only</span>
+  <button type="button" id="testDataBtn">Fill test data</button>
+</div>
+<script>
+(function () {
+  'use strict';
+
+  var FIRST = ['Amara','Devon','Priya','Marcus','Lena','Tobias','Rosa','Hollis','Nadia','Emmett',
+               'Isolde','Rafael','Junie','Casper','Marguerite','Theo'];
+  var LAST  = ['Ashwood','Delacroix','Okonkwo','Vance','Nakamura','Ferreira','Blackwell','Sorensen',
+               'Marchetti','Quintero','Halloway','Osei'];
+  var CITY  = [['Cincinnati','OH','45202'],['West Chester','OH','45069'],['Mason','OH','45040'],
+               ['Dayton','OH','45402'],['Florence','KY','41042']];
+  var PLANS = ['Anthem Blue Cross','UnitedHealthcare','Aetna Better Health','Humana Gold',
+               'Medical Mutual of Ohio','Cigna HealthSpring'];
+  var PRACTICE = ['Queen City Neurology','Tri-State Rheumatology','Riverbend Immunology',
+                  'Eastgate Internal Medicine','Clifton Digestive Health'];
+  var DX = [['Chronic inflammatory demyelinating polyneuropathy','G61.81'],
+            ['Common variable immunodeficiency','D83.9'],
+            ['Rheumatoid arthritis, unspecified','M06.9'],
+            ['Crohn disease of small intestine','K50.00'],
+            ['Myasthenia gravis','G70.00']];
+  var MEDS = [['Immune globulin IV','0.4 gm/kg every 4 weeks'],
+              ['Infliximab','5 mg/kg at weeks 0, 2, 6 then every 8 weeks'],
+              ['Vancomycin','1 g IV every 12 hours'],
+              ['Vedolizumab','300 mg IV at weeks 0, 2, 6']];
+
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function num(n){ var s=''; for(var i=0;i<n;i++) s+=Math.floor(Math.random()*10); return s; }
+  function pad(n){ return (n<10?'0':'')+n; }
+
+  function makePatient() {
+    var loc = pick(CITY), first = pick(FIRST), last = pick(LAST);
+    var dx = pick(DX), med = pick(MEDS), pr = pick(PRACTICE);
+    var prFirst = pick(FIRST), prLast = pick(LAST);
+    var d = new Date(Date.now() + 6*86400000);
+    return {
+      first: first, last: last,
+      full: first + ' ' + last,
+      dob: pad(1+Math.floor(Math.random()*12)) + '/' + pad(1+Math.floor(Math.random()*28)) + '/' +
+           (1940 + Math.floor(Math.random()*60)),
+      phone: '(513) ' + num(3) + '-' + num(4),
+      addr: (100+Math.floor(Math.random()*8900)) + ' ' + pick(['Maple','Vine','Ludlow','Erie','Reading','Glenway']) + ' ' +
+            pick(['St','Ave','Rd','Blvd']),
+      city: loc[0], state: loc[1], zip: loc[2],
+      ssn: num(3)+'-'+num(2)+'-'+num(4),
+      weight: (50 + Math.floor(Math.random()*55)) + ' kg',
+      height: (60 + Math.floor(Math.random()*18)) + ' in',
+      allergies: pick(['NKDA','Penicillin','Sulfa drugs','Latex','Shellfish']),
+      plan: pick(PLANS), plan2: pick(PLANS),
+      policy: 'P' + num(9), planid: 'GRP' + num(5),
+      prescriber: prFirst + ' ' + prLast + ', MD',
+      npi: num(10),
+      practice: pr,
+      contact: pick(FIRST) + ' ' + pick(LAST) + ', RN',
+      email: 'referrals@' + pr.toLowerCase().replace(/[^a-z]+/g,'') + '.example',
+      dx: dx[0], icd: dx[1],
+      med: med[0], dose: med[1],
+      access: pick(['Peripheral IV','PICC','Port']),
+      start: pad(d.getMonth()+1) + '/' + pad(d.getDate()) + '/' + d.getFullYear(),
+      notes: 'Test record — not a real patient. Generated for layout checking.'
+    };
+  }
+
+  // label pattern -> which value to use. First match wins, so order matters.
+  function valueFor(label, p) {
+    var l = label.toLowerCase();
+    var rules = [
+      [/\bicd|icd-10 code\b/, p.icd],
+      [/(primary )?diagnos/, p.dx],
+      [/prescriber name|prescribing|physician name|print prescriber/, p.prescriber],
+      [/\bnpi\b/, p.npi],
+      [/practice|facility|health system|home health agency/, p.practice],
+      [/nurse|key contact|office contact|referral contact/, p.contact],
+      [/e-?mail/, p.email],
+      [/(insurance|payer) ?plan|plan name/, p.plan],
+      [/policy|member id|subscriber/, p.policy],
+      [/plan ?(#|i\.?d)|group ?#/, p.planid],
+      [/last name/, p.last],
+      [/first name/, p.first],
+      [/patient (legal )?name|patient$|^name$|parent\/guardian/, p.full],
+      [/date of birth|\bdob\b/, p.dob],
+      [/social|ssn/, p.ssn],
+      [/allerg/, p.allergies],
+      [/weight/, p.weight],
+      [/height/, p.height],
+      [/city\/state\/zip/, p.city + ', ' + p.state + ' ' + p.zip],
+      [/\bcity\b/, p.city],
+      [/\bstate\b/, p.state],
+      [/\bzip\b/, p.zip],
+      [/address|city state zip/, p.addr],
+      [/phone|pager|fax/, p.phone],
+      [/start of care|needs by|requested start/, p.start],
+      [/vascular|iv access|lumen/, p.access],
+      [/medication|drug|product/, p.med],
+      [/dose|strength|frequency|directions|duration/, p.dose],
+      [/note|comment|additional|instruction/, p.notes],
+      [/^date/, p.start],
+      [/length of need|length of therapy|duration/, '12 weeks'],
+      [/refills/, '3'],
+      [/qty|quantity|number of pages/, '1']
+    ];
+    for (var i = 0; i < rules.length; i++) {
+      if (rules[i][0].test(l)) return rules[i][1];
+    }
+    return null;
+  }
+
+  function labelOf(input) {
+    if (input.getAttribute('aria-label')) return input.getAttribute('aria-label');
+    var lab = document.querySelector('label[for="' + input.id + '"]');
+    if (lab) return lab.textContent;
+    var box = input.closest('.fg, .opt, .crow, .fill, .colgrp, .med');
+    return box ? box.textContent : '';
+  }
+
+  function fill() {
+    var host = document.getElementById('panels');
+    if (!host) return;
+    var inputs = host.querySelectorAll('input[id^="fld_"], select[id^="fld_"], textarea[id^="fld_"]');
+    if (!inputs.length) {
+      alert('Pick a referral type first, then fill test data.');
+      return;
+    }
+    var p = makePatient(), n = 0;
+
+    for (var i = 0; i < inputs.length; i++) {
+      var el = inputs[i];
+      if (el.type === 'checkbox') continue;                 // clinical choices stay deliberate
+      if (el.tagName === 'SELECT') {
+        if (el.options.length > 1) { el.selectedIndex = 1; n++; }
+        continue;
+      }
+      var v = valueFor(labelOf(el), p);
+      if (v) { el.value = v; n++; }
+    }
+
+    var bar = document.getElementById('messages');
+    if (bar) {
+      bar.innerHTML = '<div class="alert alert-warn"><strong>Test data loaded for ' +
+        p.full + '.</strong> Fictional record for layout checking — clear it before any real use. ' +
+        n + ' fields filled; checkboxes left alone so you can pick them yourself.</div>';
+    }
+  }
+
+  document.getElementById('testDataBtn').addEventListener('click', fill);
+})();
+</script>
+<!-- ═══════════ END TEST DATA BUTTON — delete to here ═══════════ -->
 </body>
 </html>
