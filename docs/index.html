@@ -2,81 +2,122 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Vital Care Referral Forms</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vital Care Referral</title>
 <style>
+  :root{
+    --ink:#12303f; --muted:#5b7387; --line:#dbe6ee; --brand:#1f6f96; --brand-dark:#175573;
+    --bg:#eef2f6; --soft:#f5f9fc;
+  }
   *{box-sizing:border-box}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eef2f6;min-height:100vh;padding:24px;margin:0;color:#173042}
-  .container{max-width:1080px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 4px 24px rgba(16,43,63,.12);overflow:hidden}
-  .header{background:#1f6f96;color:#fff;padding:26px 36px}
-  .header h1{margin:0;font-size:23px;font-weight:700}
-  .header p{margin:5px 0 0;font-size:13px;opacity:.9}
-  .build{margin-top:7px;font-size:11px;opacity:.6;font-family:ui-monospace,Menlo,Consolas,monospace}
-  .content{padding:26px 36px 36px}
-  h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#1f6f96;margin:28px 0 14px;padding-bottom:7px;border-bottom:1px solid #dbe6ee}
-  h2:first-child{margin-top:0}
-  .types{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:8px}
-  .tbtn{padding:11px 12px;border:1px solid #cfdce6;border-radius:5px;background:#fff;color:#3c5468;font-weight:600;cursor:pointer;font-size:13px;text-align:center;font-family:inherit}
-  .tbtn:hover{border-color:#1f6f96;color:#1f6f96}
-  .tbtn.active{background:#1f6f96;color:#fff;border-color:#1f6f96}
-  .tbtn small{display:block;font-size:10px;font-weight:500;opacity:.65;margin-top:2px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px}
-  .fg{display:flex;flex-direction:column}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sans-serif;
+       background:#eef2f6;min-height:100vh;margin:0;padding:24px 16px 60px;color:#12303f;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:940px;margin:0 auto}
+  .card{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(16,43,63,.06),0 12px 32px rgba(16,43,63,.08);overflow:hidden}
+  .head{background:linear-gradient(180deg,#1f6f96,#1a6187);color:#fff;padding:26px 34px}
+  .head h1{margin:0;font-size:21px;font-weight:700;letter-spacing:-.2px}
+  .head p{margin:5px 0 0;font-size:13px;opacity:.88}
+  .build{margin-top:7px;font-size:10.5px;opacity:.55;font-family:ui-monospace,Menlo,Consolas,monospace}
+
+  /* stepper */
+  .steps{display:flex;gap:2px;background:#f5f9fc;border-bottom:1px solid #dbe6ee;overflow-x:auto;padding:0 12px}
+  .step{flex:1 0 auto;min-width:104px;background:none;border:none;padding:13px 10px 11px;cursor:pointer;
+        font-family:inherit;font-size:12px;font-weight:600;color:#7a8fa0;text-align:center;
+        border-bottom:3px solid transparent;white-space:nowrap}
+  .step:hover:not(:disabled){color:#1f6f96}
+  .step:disabled{cursor:default;opacity:.45}
+  .step .num{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;
+             background:#dbe6ee;color:#5b7387;font-size:11px;margin-right:6px;vertical-align:middle}
+  .step.active{color:#1f6f96;border-bottom-color:#1f6f96}
+  .step.active .num{background:#1f6f96;color:#fff}
+  .step.done .num{background:#2f9e5f;color:#fff}
+  .step .cnt{display:block;font-weight:500;font-size:10px;opacity:.7;margin-top:2px}
+
+  .body{padding:28px 34px 30px}
+  .panel{display:none}
+  .panel.on{display:block}
+  .ptitle{font-size:19px;font-weight:700;margin:0 0 4px;letter-spacing:-.2px}
+  .psub{font-size:13.5px;color:#5b7387;margin:0 0 22px;line-height:1.5}
+
+  .sub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#8199aa;
+       margin:26px 0 12px;padding-bottom:6px;border-bottom:1px solid #eaf1f6}
+  .sub:first-of-type{margin-top:0}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:14px}
+  .fg{display:flex;flex-direction:column;min-width:0}
   .fg.wide{grid-column:1/-1}
-  .fg label{font-weight:600;font-size:12px;margin-bottom:5px;color:#3c5468}
-  input[type=text],select,textarea{padding:8px 10px;border:1px solid #cfdce6;border-radius:5px;font-family:inherit;font-size:14px;color:#173042;background:#fff;width:100%}
-  input:focus,select:focus,textarea:focus{outline:none;border-color:#1f6f96;box-shadow:0 0 0 3px rgba(31,111,150,.12)}
-  .checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2px;border:1px solid #dbe6ee;border-radius:6px;padding:6px}
-  .crow{display:flex;align-items:flex-start;gap:8px;padding:5px 8px;font-size:12.5px;border-radius:4px;line-height:1.35}
-  .crow:hover{background:#f6fafc}
-  .crow input{margin:2px 0 0;flex:none}
-  .crow label{cursor:pointer;flex:1}
-  .alert{padding:13px 16px;border-radius:5px;margin-bottom:18px;font-size:13.5px;border-left:3px solid;line-height:1.55}
-  .alert-info{background:#eef6fb;color:#1f6f96;border-left-color:#1f6f96}
-  .alert-success{background:#eaf7ef;color:#1e7a44;border-left-color:#2f9e5f}
+  .fg label{font-weight:600;font-size:12px;margin-bottom:5px;color:#415a6d;line-height:1.3}
+  input[type=text],select,textarea{padding:9px 11px;border:1px solid #cfdce6;border-radius:6px;
+       font-family:inherit;font-size:14px;color:#12303f;background:#fff;width:100%;transition:border-color .12s,box-shadow .12s}
+  input[type=text]:focus,select:focus,textarea:focus{outline:none;border-color:#1f6f96;box-shadow:0 0 0 3px rgba(31,111,150,.13)}
+  input.filled,select.filled{background:#fbfdfe;border-color:#a9cbdd}
+  textarea{resize:vertical;min-height:70px}
+
+  .checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:1px;
+          border:1px solid #e3ecf2;border-radius:8px;padding:5px;background:#fcfeff}
+  .crow{display:flex;align-items:flex-start;gap:9px;padding:7px 9px;font-size:12.5px;border-radius:5px;line-height:1.4}
+  .crow:hover{background:#f2f8fb}
+  .crow input{margin:2px 0 0;flex:none;accent-color:#1f6f96;width:15px;height:15px}
+  .crow label{cursor:pointer;flex:1;color:#33506a}
+
+  .alert{padding:12px 15px;border-radius:7px;margin-bottom:18px;font-size:13.5px;border-left:3px solid;line-height:1.55}
+  .alert-info{background:#eef6fb;color:#1a6187;border-left-color:#1f6f96}
+  .alert-success{background:#eaf7ef;color:#1c6f3f;border-left-color:#2f9e5f}
   .alert-error{background:#fdeeed;color:#a5342b;border-left-color:#c0392b}
   .alert-warn{background:#fef7e8;color:#8a6216;border-left-color:#d9a327}
-  .bar{display:flex;gap:10px;justify-content:flex-end;margin-top:28px;flex-wrap:wrap;align-items:center;border-top:1px solid #dbe6ee;padding-top:20px}
-  button{padding:10px 24px;border:none;border-radius:5px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit}
-  .btn-primary{background:#1f6f96;color:#fff}
-  .btn-primary:hover:not(:disabled){background:#195b7c}
-  .btn-primary:disabled{opacity:.5;cursor:not-allowed}
-  .btn-secondary{background:#fff;color:#3c5468;border:1px solid #cfdce6}
-  .btn-secondary:hover{background:#f4f8fb}
-  .chk{display:flex;align-items:center;gap:7px;font-size:13px;color:#3c5468}
-  .chk input{flex:none;margin:0}
-  .note{font-size:12px;color:#7a8fa0;margin-top:8px;text-align:right}
-  .searchwrap{margin-bottom:14px}
-  #search{max-width:340px}
-  .hidden{display:none}
+
+  .nav{display:flex;gap:10px;align-items:center;margin-top:30px;padding-top:20px;border-top:1px solid #eaf1f6}
+  .nav .spacer{flex:1}
+  button.btn{padding:10px 22px;border-radius:6px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;border:1px solid transparent}
+  .primary{background:#1f6f96;color:#fff}
+  .primary:hover:not(:disabled){background:#175573}
+  .primary:disabled{opacity:.5;cursor:not-allowed}
+  .ghost{background:#fff;color:#415a6d;border-color:#cfdce6}
+  .ghost:hover{background:#f4f9fc}
+  .link{background:none;border:none;color:#7a8fa0;font-size:12.5px;cursor:pointer;font-family:inherit;text-decoration:underline;padding:6px}
+  .link:hover{color:#c0392b}
+
+  /* referral type picker */
+  .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:10px}
+  .tcard{text-align:left;padding:15px 16px;border:1px solid #d6e3ec;border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;transition:all .13s}
+  .tcard:hover{border-color:#1f6f96;box-shadow:0 3px 10px rgba(31,111,150,.11);transform:translateY(-1px)}
+  .tcard.sel{border-color:#1f6f96;background:#f2f9fd;box-shadow:inset 0 0 0 1px #1f6f96}
+  .tcard b{display:block;font-size:14px;color:#12303f;margin-bottom:3px}
+  .tcard span{font-size:11.5px;color:#7a8fa0}
+
+  /* review */
+  .rev{border:1px solid #e3ecf2;border-radius:9px;overflow:hidden;margin-bottom:14px}
+  .rev h4{margin:0;padding:10px 15px;background:#f5f9fc;font-size:11.5px;font-weight:700;
+          text-transform:uppercase;letter-spacing:.6px;color:#5b7387;border-bottom:1px solid #e3ecf2}
+  .rev dl{margin:0;padding:6px 15px 12px;display:grid;grid-template-columns:auto 1fr;gap:3px 16px;font-size:13px}
+  .rev dt{color:#7a8fa0;padding:4px 0}
+  .rev dd{margin:0;padding:4px 0;color:#12303f;font-weight:500;word-break:break-word}
+  .rev .none{padding:12px 15px;font-size:13px;color:#9aabb8}
+  .toolbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  .toolbar input[type=text]{max-width:280px}
+  .chk{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#415a6d;cursor:pointer}
+  .chk input{accent-color:#1f6f96;width:15px;height:15px}
+  .hidden{display:none !important}
+  .empty{color:#9aabb8;font-size:13.5px;padding:14px 0}
+  @media(max-width:640px){
+    body{padding:12px 8px 40px}
+    .head,.body{padding-left:20px;padding-right:20px}
+    .nav{flex-wrap:wrap}
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>Vital Care Referral Forms</h1>
-    <p>Vital Care of West Chester &middot; print and fax to (513) 780-5881</p>
-    <div class="build">build v8 &middot; 2026-08-22 &middot; all 11 forms</div>
-  </div>
-  <div class="content">
-    <div id="messages"></div>
-
-    <h2>Referral Type</h2>
-    <div class="types" id="types"></div>
-
-    <div id="formArea" class="hidden">
-      <div class="searchwrap" style="margin-top:24px">
-        <input type="text" id="search" placeholder="Filter fields…">
-      </div>
-      <div id="fields"></div>
-      <div class="bar">
-        <label class="chk" style="margin-right:auto"><input type="checkbox" id="flatten" checked> Flatten before download</label>
-        <button type="button" class="btn-secondary" id="clearBtn">Clear form</button>
-        <span style="width:14px"></span>
-        <button type="button" class="btn-secondary" id="labelBtn">Field-map test PDF</button>
-        <button type="button" class="btn-primary" id="go">Download filled PDF</button>
-      </div>
-      <div class="note">Signature and date are left blank &mdash; the prescriber must sign by hand.</div>
+<div class="wrap">
+  <div class="card">
+    <div class="head">
+      <h1>Vital Care Referral</h1>
+      <p>Vital Care of West Chester &middot; complete the steps, then print and fax to (513) 780-5881</p>
+      <div class="build">build v9 &middot; 2026-08-22</div>
+    </div>
+    <div class="steps" id="steps"></div>
+    <div class="body">
+      <div id="messages"></div>
+      <div id="panels"></div>
     </div>
   </div>
 </div>
@@ -84,144 +125,264 @@
 <script>
 (function () {
   'use strict';
-  var FORMS = null;
-  var current = null;
+  var FORMS = null, current = null, steps = [], stepIndex = 0;
 
-  // Pharmacy details are the same on every referral — filled automatically.
-  var PHARMACY = [
-    [/^pharmacy name/i,  'Vital Care of West Chester'],
-    [/^address$/i,       '8731 Union Centre Blvd.'],
-    [/^city\/state\/zip/i, 'West Chester, OH 45069'],
-    [/^phone$/i,         '(513) 780-5880'],
-    [/^fax$/i,           '(513) 780-5881']
-  ];
+  var PHARMACY = {
+    'pharmacy name'   : 'Vital Care of West Chester',
+    'address'         : '8731 Union Centre Blvd.',
+    'city/state/zip'  : 'West Chester, OH 45069',
+    'phone'           : '(513) 780-5880',
+    'fax'             : '(513) 780-5881',
+    'email'           : ''
+  };
+
+  var GROUP_ORDER = ['Fax Cover','Patient','Prescriber','Insurance','Clinical','Prescription'];
+  var GROUP_BLURB = {
+    'Fax Cover'   : 'Cover-sheet details for the fax transmission.',
+    'Patient'     : 'Demographics and contact details for the patient.',
+    'Prescriber'  : 'Who prescribed the therapy and where to reach them.',
+    'Insurance'   : 'Coverage details needed for benefits verification.',
+    'Clinical'    : 'Diagnosis, labs, and supporting clinical information.',
+    'Prescription': 'The medication order, dosing, and nursing instructions.'
+  };
 
   function msg(html, kind) {
     document.getElementById('messages').innerHTML =
-      '<div class="alert alert-' + (kind || 'info') + '">' + html + '</div>';
+      html ? '<div class="alert alert-' + (kind||'info') + '">' + html + '</div>' : '';
   }
-  function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
 
-  // Fields in the header block of the paper form that we prefill and hide.
-  function pharmacyValue(field, index) {
-    // only the very first few fields on page 1 are the pharmacy header
-    if (field.p !== 1 || index > 8) return null;
-    for (var i = 0; i < PHARMACY.length; i++) {
-      if (PHARMACY[i][0].test(field.l)) return PHARMACY[i][1];
+  // ---------- step scaffolding ----------
+  function buildSteps() {
+    steps = [{ id:'type', label:'Referral type', title:'Choose a referral type',
+               sub:'Pick the therapy this referral is for. The rest of the form adapts to it.' }];
+    if (current) {
+      GROUP_ORDER.forEach(function (g) {
+        var fs = current.fields.filter(function (f) { return f.g === g; });
+        if (fs.length) steps.push({ id:g, label:g, title:g, sub:GROUP_BLURB[g]||'', fields:fs });
+      });
+      steps.push({ id:'review', label:'Review', title:'Review and download',
+                   sub:'Check the details below, then generate the filled PDF.' });
     }
-    return null;
   }
 
-  function buildTypes() {
-    var wrap = document.getElementById('types');
+  function renderSteps() {
+    var bar = document.getElementById('steps');
+    bar.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var b = el('button','step');
+      b.type = 'button';
+      var cnt = s.fields ? '<span class="cnt">' + s.fields.length + ' fields</span>' : '';
+      b.innerHTML = '<span class="num">' + (i+1) + '</span>' + esc(s.label) + cnt;
+      if (i === stepIndex) b.className += ' active';
+      else if (current && i < stepIndex) b.className += ' done';
+      if (!current && i > 0) b.disabled = true;
+      b.onclick = function(){ goto(i); };
+      bar.appendChild(b);
+    });
+  }
+
+  function goto(i) {
+    if (i < 0 || i >= steps.length) return;
+    if (!current && i > 0) return;
+    stepIndex = i;
+    renderSteps();
+    var ps = document.querySelectorAll('.panel');
+    for (var k=0;k<ps.length;k++) ps[k].classList.toggle('on', k === i);
+    if (steps[i].id === 'review') renderReview();
+    msg('');
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+
+  function navRow(panel, i) {
+    var nav = el('div','nav');
+    if (i > 0) {
+      var back = el('button','btn ghost','Back'); back.type='button';
+      back.onclick = function(){ goto(i-1); };
+      nav.appendChild(back);
+    }
+    nav.appendChild(el('div','spacer'));
+    if (steps[i].id !== 'review') {
+      var next = el('button','btn primary','Continue'); next.type='button';
+      next.onclick = function(){ goto(i+1); };
+      nav.appendChild(next);
+    }
+    panel.appendChild(nav);
+  }
+
+  // ---------- panels ----------
+  function renderAll() {
+    var host = document.getElementById('panels');
+    host.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var p = el('div','panel' + (i===stepIndex?' on':''));
+      p.appendChild(el('h2','ptitle', esc(s.title)));
+      p.appendChild(el('p','psub', esc(s.sub)));
+      if (s.id === 'type')        renderTypes(p);
+      else if (s.id === 'review') { p.appendChild(el('div','', '<div id="reviewBody"></div>')); renderReviewNav(p, i); }
+      else                        renderFields(p, s);
+      if (s.id !== 'review') navRow(p, i);
+      host.appendChild(p);
+    });
+  }
+
+  function renderTypes(p) {
+    if (!FORMS) { p.appendChild(el('p','empty','Referral types could not be loaded.')); return; }
+    var g = el('div','types');
     Object.keys(FORMS).forEach(function (code) {
       var f = FORMS[code];
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'tbtn';
-      b.innerHTML = esc(f.title) + '<small>' + f.fields.length + ' fields</small>';
-      b.onclick = function () {
-        var all = document.querySelectorAll('.tbtn');
-        for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
-        b.classList.add('active');
-        selectForm(code);
-      };
-      wrap.appendChild(b);
+      var b = el('button','tcard'); b.type='button';
+      b.innerHTML = '<b>' + esc(f.title) + '</b><span>' + f.fields.length + ' fields</span>';
+      if (current && current.code === code) b.className += ' sel';
+      b.onclick = function () { selectForm(code); };
+      g.appendChild(b);
     });
+    p.appendChild(g);
   }
 
-  function selectForm(code) {
-    current = FORMS[code];
-    var host = document.getElementById('fields');
-    host.innerHTML = '';
-
-    var groups = [], byName = {};
-    current.fields.forEach(function (f, i) {
-      f._i = i;
-      if (pharmacyValue(f, i) !== null) return;   // auto-filled, don't show
-      if (!byName[f.s]) { byName[f.s] = []; groups.push(f.s); }
-      byName[f.s].push(f);
+  function renderFields(p, step) {
+    if (step.fields.length > 18) {
+      var tb = el('div','toolbar');
+      var inp = el('input'); inp.type='text'; inp.placeholder='Filter these fields…';
+      inp.oninput = function(){ filterPanel(p, inp.value); };
+      tb.appendChild(inp);
+      p.appendChild(tb);
+    }
+    var bySec = {}, order = [];
+    step.fields.forEach(function (f) {
+      if (!bySec[f.s]) { bySec[f.s] = []; order.push(f.s); }
+      bySec[f.s].push(f);
     });
-
-    groups.forEach(function (g) {
-      var h = document.createElement('h2');
-      h.textContent = g;
-      host.appendChild(h);
-
-      var list = byName[g];
-      var texts = list.filter(function (f) { return f.k !== 'check'; });
-      var checks = list.filter(function (f) { return f.k === 'check'; });
-
+    order.forEach(function (sec) {
+      if (order.length > 1) p.appendChild(el('div','sub', esc(sec)));
+      var list = bySec[sec];
+      var texts  = list.filter(function(f){ return f.k !== 'check'; });
+      var checks = list.filter(function(f){ return f.k === 'check'; });
       if (texts.length) {
-        var grid = document.createElement('div');
-        grid.className = 'grid';
-        texts.forEach(function (f) {
-          var d = document.createElement('div');
-          d.className = 'fg' + (f.l.length > 42 ? ' wide' : '');
-          var id = 'fld_' + f._i;
-          if (f.k === 'radio' && f.o) {
-            var opts = f.o.map(function (o) {
-              return '<option value="' + esc(o) + '">' + esc(o.replace(/^\//,'')) + '</option>';
-            }).join('');
-            d.innerHTML = '<label for="' + id + '">' + esc(f.l) + '</label>' +
-                          '<select id="' + id + '" data-i="' + f._i + '"><option value="">—</option>' + opts + '</select>';
-          } else {
-            d.innerHTML = '<label for="' + id + '">' + esc(f.l) + '</label>' +
-                          '<input type="text" id="' + id + '" data-i="' + f._i + '">';
-          }
-          grid.appendChild(d);
-        });
-        host.appendChild(grid);
+        var grid = el('div','grid');
+        texts.forEach(function (f) { grid.appendChild(textField(f)); });
+        p.appendChild(grid);
       }
-
       if (checks.length) {
-        var box = document.createElement('div');
-        box.className = 'checks';
+        var box = el('div','checks');
         checks.forEach(function (f) {
           var id = 'fld_' + f._i;
-          var r = document.createElement('div');
-          r.className = 'crow';
-          r.innerHTML = '<input type="checkbox" id="' + id + '" data-i="' + f._i + '">' +
-                        '<label for="' + id + '">' + esc(f.l) + '</label>';
-          box.appendChild(r);
+          box.appendChild(el('div','crow',
+            '<input type="checkbox" id="'+id+'"><label for="'+id+'">'+esc(f.l)+'</label>'));
         });
-        host.appendChild(box);
+        p.appendChild(box);
       }
     });
-
-    document.getElementById('formArea').classList.remove('hidden');
-    document.getElementById('search').value = '';
-    applyFilter();
-    msg('<strong>' + esc(current.title) + '</strong> loaded — ' + current.fields.length +
-        ' fields. Fill in what you need; anything left blank stays blank on the PDF.', 'info');
   }
 
-  function applyFilter() {
-    var q = document.getElementById('search').value.toLowerCase().trim();
-    var host = document.getElementById('fields');
-    var kids = host.children, visibleInGroup = 0, lastHeader = null;
-    for (var i = 0; i < kids.length; i++) {
-      var el = kids[i];
-      if (el.tagName === 'H2') {
-        if (lastHeader) lastHeader.classList.toggle('hidden', visibleInGroup === 0);
-        lastHeader = el; visibleInGroup = 0;
-        continue;
+  function textField(f) {
+    var id = 'fld_' + f._i;
+    var d = el('div','fg' + (f.l.length > 38 ? ' wide' : ''));
+    if (f.k === 'radio' && f.o) {
+      var opts = f.o.map(function(o){ return '<option value="'+esc(o)+'">'+esc(o.replace(/^\//,''))+'</option>'; }).join('');
+      d.innerHTML = '<label for="'+id+'">'+esc(f.l)+'</label><select id="'+id+'"><option value="">—</option>'+opts+'</select>';
+    } else if (/note|comment|instruction|direction|additional/i.test(f.l)) {
+      d.className = 'fg wide';
+      d.innerHTML = '<label for="'+id+'">'+esc(f.l)+'</label><textarea id="'+id+'"></textarea>';
+    } else {
+      d.innerHTML = '<label for="'+id+'">'+esc(f.l)+'</label><input type="text" id="'+id+'">';
+    }
+    return d;
+  }
+
+  function filterPanel(p, q) {
+    q = (q||'').toLowerCase().trim();
+    var kids = p.children, lastSub = null, seen = 0;
+    for (var i=0;i<kids.length;i++) {
+      var e = kids[i];
+      if (e.classList.contains('sub')) {
+        if (lastSub) lastSub.classList.toggle('hidden', seen === 0);
+        lastSub = e; seen = 0; continue;
       }
-      var rows = el.querySelectorAll('.fg, .crow'), shown = 0;
-      for (var j = 0; j < rows.length; j++) {
-        var txt = rows[j].textContent.toLowerCase();
-        var hit = !q || txt.indexOf(q) !== -1;
+      if (!e.classList.contains('grid') && !e.classList.contains('checks')) continue;
+      var rows = e.querySelectorAll('.fg, .crow'), shown = 0;
+      for (var j=0;j<rows.length;j++) {
+        var hit = !q || rows[j].textContent.toLowerCase().indexOf(q) !== -1;
         rows[j].classList.toggle('hidden', !hit);
         if (hit) shown++;
       }
-      el.classList.toggle('hidden', shown === 0);
-      visibleInGroup += shown;
+      e.classList.toggle('hidden', shown === 0);
+      seen += shown;
     }
-    if (lastHeader) lastHeader.classList.toggle('hidden', visibleInGroup === 0);
+    if (lastSub) lastSub.classList.toggle('hidden', seen === 0);
   }
 
+  // ---------- form selection ----------
+  function selectForm(code) {
+    current = FORMS[code];
+    current.fields.forEach(function (f, i) { f._i = i; });
+    buildSteps();
+    renderAll();
+    goto(1);
+    msg('<strong>' + esc(current.title) + '</strong> selected. Anything you leave blank stays blank on the PDF.', 'info');
+  }
+
+  // ---------- review ----------
+  function valueOf(f) {
+    var e = document.getElementById('fld_' + f._i);
+    if (!e) return null;
+    if (f.k === 'check') return e.checked ? 'Yes' : null;
+    return e.value.trim() || null;
+  }
+
+  function renderReview() {
+    var host = document.getElementById('reviewBody');
+    host.innerHTML = '';
+    var any = 0;
+    GROUP_ORDER.forEach(function (g) {
+      var fs = current.fields.filter(function (f) { return f.g === g; });
+      if (!fs.length) return;
+      var rows = '';
+      fs.forEach(function (f) {
+        var v = valueOf(f);
+        if (v) { rows += '<dt>' + esc(f.l) + '</dt><dd>' + esc(v) + '</dd>'; any++; }
+      });
+      var block = el('div','rev');
+      block.appendChild(el('h4','', esc(g)));
+      block.appendChild(rows ? el('dl','',rows) : el('div','none','Nothing entered'));
+      host.appendChild(block);
+    });
+    if (!any) host.appendChild(el('p','empty','No fields filled in yet — go back and add the details you have.'));
+  }
+
+  function renderReviewNav(p, i) {
+    var tb = el('div','toolbar');
+    tb.style.marginTop = '18px';
+    var lab = el('label','chk','<input type="checkbox" id="flatten" checked> Flatten before download (locks values so they always print)');
+    tb.appendChild(lab);
+    p.appendChild(tb);
+
+    var nav = el('div','nav');
+    var back = el('button','btn ghost','Back'); back.type='button';
+    back.onclick = function(){ goto(i-1); };
+    nav.appendChild(back);
+    var clr = el('button','link','Clear all fields'); clr.type='button';
+    clr.onclick = clearAll;
+    nav.appendChild(clr);
+    nav.appendChild(el('div','spacer'));
+    var go = el('button','btn primary','Download filled PDF'); go.type='button'; go.id='go';
+    go.onclick = download;
+    nav.appendChild(go);
+    p.appendChild(nav);
+  }
+
+  function clearAll() {
+    current.fields.forEach(function (f) {
+      var e = document.getElementById('fld_' + f._i);
+      if (!e) return;
+      if (f.k === 'check') e.checked = false; else e.value = '';
+    });
+    renderReview();
+    msg('All fields cleared.', 'info');
+  }
+
+  // ---------- pdf ----------
   function loadPdf() {
     var url = './pdfs/' + current.file;
     return fetch(url).then(function (r) {
@@ -230,51 +391,43 @@
     }).then(function (b) { return PDFLib.PDFDocument.load(b); });
   }
 
-  function download(bytes, name) {
-    var url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
-    var a = document.createElement('a');
-    a.href = url; a.download = name;
+  function saveAs(bytes, name) {
+    var url = URL.createObjectURL(new Blob([bytes], { type:'application/pdf' }));
+    var a = document.createElement('a'); a.href = url; a.download = name;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 
-  function go() {
-    if (!current) { msg('Pick a referral type first.', 'error'); return; }
+  function download() {
     var btn = document.getElementById('go');
     btn.disabled = true;
-    msg('Generating PDF\u2026', 'info');
-
+    msg('Generating PDF…', 'info');
     var filled = 0, problems = [], patient = '';
 
     loadPdf().then(function (doc) {
-      var form = doc.getForm();
-      var index = {};
+      var form = doc.getForm(), index = {};
       form.getFields().forEach(function (o) { index[o.getName()] = o; });
 
-      current.fields.forEach(function (f, i) {
-        var auto = pharmacyValue(f, i);
-        var el = document.getElementById('fld_' + i);
-        var val = auto !== null ? auto : null;
-
+      current.fields.forEach(function (f) {
         var obj = index[f.n];
+        if (!obj) { problems.push(f.l); return; }
         try {
-          if (!obj) throw new Error('not present in PDF');
+          if (f.g === 'Auto') {
+            var v = PHARMACY[f.l.toLowerCase().trim()];
+            if (v) { obj.setText(v); filled++; }
+            return;
+          }
           if (f.k === 'check') {
-            if (el && el.checked) { obj.check(); filled++; }
-          } else if (f.k === 'radio') {
-            var v = el ? el.value : '';
-            if (v) { obj.select(v); filled++; }
+            var e = document.getElementById('fld_' + f._i);
+            if (e && e.checked) { obj.check(); filled++; }
           } else {
-            var t = val !== null ? val : (el ? el.value : '');
+            var t = valueOf(f);
             if (t) {
-              obj.setText(String(t));
-              filled++;
-              if (/last name/i.test(f.l)) patient = String(t);
+              obj.setText(t); filled++;
+              if (/last name|patient name|patient legal name/i.test(f.l)) patient = t.split(/[\s,]+/)[0];
             }
           }
-        } catch (e) {
-          problems.push(f.l + ' [' + f.n + ']');
-        }
+        } catch (err) { problems.push(f.l); }
       });
 
       if (document.getElementById('flatten').checked) {
@@ -282,11 +435,11 @@
       }
       return doc.save();
     }).then(function (bytes) {
-      download(bytes, current.code + '_referral_' + (patient || 'patient') + '.pdf');
-      var html = '<strong>Downloaded.</strong> Print and fax to (513) 780-5881. Filled ' +
-                 filled + ' field' + (filled === 1 ? '' : 's') + '.';
-      if (problems.length) html += '<br><strong>Could not write:</strong> ' + esc(problems.join(', '));
-      msg(html, problems.length ? 'warn' : 'success');
+      saveAs(bytes, current.code + '_referral_' + (patient || 'patient') + '.pdf');
+      var h = '<strong>Downloaded.</strong> Print, have the prescriber sign, and fax to (513) 780-5881. Filled ' +
+              filled + ' field' + (filled===1?'':'s') + '.';
+      if (problems.length) h += '<br><strong>Could not write:</strong> ' + esc(problems.slice(0,8).join(', '));
+      msg(h, problems.length ? 'warn' : 'success');
       btn.disabled = false;
     }).catch(function (err) {
       console.error(err);
@@ -295,79 +448,35 @@
     });
   }
 
-  function labelPdf() {
-    if (!current) { msg('Pick a referral type first.', 'error'); return; }
-    msg('Building field-map test PDF\u2026', 'info');
-    loadPdf().then(function (doc) {
-      var form = doc.getForm();
-      form.getFields().forEach(function (f) {
-        try {
-          if (typeof f.setText === 'function') {
-            var m = f.getName().match(/(\d+)\s*$/);
-            f.setText(m ? m[1] : f.getName().slice(0, 3));
-            try { f.setFontSize(7); } catch (e) {}
-          } else if (typeof f.check === 'function') { f.check(); }
-        } catch (e) {}
-      });
-      try { form.flatten(); } catch (e) {}
-      return doc.save();
-    }).then(function (b) {
-      download(b, 'FIELDMAP_' + current.code + '.pdf');
-      msg('Field-map test PDF downloaded.', 'success');
-    }).catch(function (e) { msg('Error: ' + esc(e.message), 'error'); });
-  }
-
-  function clearForm() {
-    var els = document.querySelectorAll('#fields input, #fields select');
-    for (var i = 0; i < els.length; i++) {
-      if (els[i].type === 'checkbox') els[i].checked = false; else els[i].value = '';
-    }
-    msg('Form cleared.', 'info');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  window.onerror = function (m, src, line) {
-    msg('Script error: ' + esc(m) + ' (line ' + line + ')', 'error');
-  };
-
-  function diagnoseMissingLib() {
-    msg('Checking why pdf-lib.min.js did not load\u2026', 'error');
+  // ---------- boot ----------
+  function diagnose() {
     fetch('./pdf-lib.min.js').then(function (r) {
-      return r.text().then(function (body) {
+      return r.text().then(function (b) {
         var where = new URL('./pdf-lib.min.js', window.location.href).href;
-        if (!r.ok) {
-          msg('<strong>pdf-lib.min.js is missing.</strong> The server returned HTTP ' + r.status +
-              ' for:<br><code>' + esc(where) + '</code><br>Upload pdf-lib.min.js into the same folder as index.html.', 'error');
-        } else if (/^\s*</.test(body)) {
-          msg('<strong>pdf-lib.min.js returned a web page, not JavaScript.</strong> That URL is being ' +
-              'redirected or served as HTML:<br><code>' + esc(where) + '</code>', 'error');
-        } else {
-          msg('<strong>pdf-lib.min.js downloaded (' + Math.round(body.length/1024) + ' KB) but did not run.</strong> ' +
-              'Something is blocking scripts on this page \u2014 try an incognito window with extensions disabled.', 'error');
-        }
+        if (!r.ok) msg('<strong>pdf-lib.min.js is missing.</strong> HTTP ' + r.status + ' for <code>' + esc(where) + '</code>', 'error');
+        else if (/^\s*</.test(b)) msg('<strong>pdf-lib.min.js is being served as a web page, not JavaScript.</strong>', 'error');
+        else msg('<strong>pdf-lib.min.js loaded but did not run</strong> — try an incognito window with extensions off.', 'error');
       });
     }).catch(function (e) {
-      msg('<strong>pdf-lib.min.js could not be fetched:</strong> ' + esc(e.message), 'error');
+      msg('<strong>pdf-lib.min.js could not be fetched:</strong> ' + esc(e.message) +
+          '<br>This page must be opened from its GitHub Pages URL, not a local preview.', 'error');
     });
   }
 
-  if (typeof PDFLib === 'undefined') {
-    diagnoseMissingLib();
-  } else {
-    document.getElementById('go').addEventListener('click', go);
-    document.getElementById('labelBtn').addEventListener('click', labelPdf);
-    document.getElementById('clearBtn').addEventListener('click', clearForm);
-    document.getElementById('search').addEventListener('input', applyFilter);
+  window.onerror = function (m, s, l) { msg('Script error: ' + esc(m) + ' (line ' + l + ')', 'error'); };
 
+  if (typeof PDFLib === 'undefined') {
+    buildSteps(); renderSteps(); renderAll();
+    diagnose();
+  } else {
     fetch('./forms.json').then(function (r) {
       if (!r.ok) throw new Error('forms.json missing (HTTP ' + r.status + ')');
       return r.json();
     }).then(function (d) {
       FORMS = d;
-      buildTypes();
-      msg('Pick a referral type to begin.', 'info');
+      buildSteps(); renderSteps(); renderAll();
     }).catch(function (e) {
-      msg('Could not load forms.json — it must sit in the same folder as index.html. (' + esc(e.message) + ')', 'error');
+      msg('Could not load forms.json — it must sit beside index.html. (' + esc(e.message) + ')', 'error');
     });
   }
 })();
