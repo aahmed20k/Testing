@@ -98,6 +98,25 @@
   .chk{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#415a6d;cursor:pointer}
   .chk input{accent-color:#1f6f96;width:15px;height:15px}
   .hidden{display:none !important}
+
+  /* medication table rows */
+  .med{border:1px solid #e0eaf1;border-radius:9px;margin-bottom:12px;overflow:hidden;background:#fff}
+  .med>h5{margin:0;padding:10px 15px;background:#f4f9fc;border-bottom:1px solid #e8f0f5;
+          font-size:13.5px;font-weight:700;color:#1a4a63}
+  .med>h5 em{font-style:normal;font-weight:500;color:#7f96a6;font-size:12px;margin-left:6px}
+  .medbody{padding:12px 15px}
+  .colgrp{margin-bottom:14px}
+  .colgrp:last-child{margin-bottom:0}
+  .colgrp>span.ch{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;
+                  letter-spacing:.6px;color:#93a8b6;margin-bottom:7px}
+  .opt{display:flex;align-items:flex-start;gap:9px;padding:5px 6px;border-radius:5px;font-size:13px;line-height:1.45}
+  .opt:hover{background:#f5fafd}
+  .opt input{margin:2px 0 0;flex:none;accent-color:#1f6f96;width:15px;height:15px}
+  .opt label{cursor:pointer;flex:1;color:#33506a}
+  .fill{font-size:13.5px;line-height:2.3;color:#33506a;padding:4px 6px}
+  .fill input{display:inline-block;width:88px;padding:4px 8px;margin:0 3px;font-size:13px;
+              border:1px solid #cfdce6;border-radius:5px;vertical-align:baseline}
+  .fill input:focus{border-color:#1f6f96;box-shadow:0 0 0 3px rgba(31,111,150,.13);outline:none}
   .empty{color:#9aabb8;font-size:13.5px;padding:14px 0}
   @media(max-width:640px){
     body{padding:12px 8px 40px}
@@ -112,7 +131,7 @@
     <div class="head">
       <h1>Vital Care Referral</h1>
       <p>Vital Care of West Chester &middot; complete the steps, then print and fax to (513) 780-5881</p>
-      <div class="build">build v9 &middot; 2026-08-22</div>
+      <div class="build">build v11 &middot; 2026-08-22</div>
     </div>
     <div class="steps" id="steps"></div>
     <div class="body">
@@ -133,7 +152,8 @@
     'city/state/zip'  : 'West Chester, OH 45069',
     'phone'           : '(513) 780-5880',
     'fax'             : '(513) 780-5881',
-    'email'           : ''
+    'email'           : '',
+    'to'              : 'Vital Care of West Chester'
   };
 
   var GROUP_ORDER = ['Fax Cover','Patient','Prescriber','Insurance','Clinical','Prescription'];
@@ -257,22 +277,120 @@
     order.forEach(function (sec) {
       if (order.length > 1) p.appendChild(el('div','sub', esc(sec)));
       var list = bySec[sec];
-      var texts  = list.filter(function(f){ return f.k !== 'check'; });
-      var checks = list.filter(function(f){ return f.k === 'check'; });
-      if (texts.length) {
-        var grid = el('div','grid');
-        texts.forEach(function (f) { grid.appendChild(textField(f)); });
-        p.appendChild(grid);
-      }
-      if (checks.length) {
-        var box = el('div','checks');
-        checks.forEach(function (f) {
-          var id = 'fld_' + f._i;
-          box.appendChild(el('div','crow',
-            '<input type="checkbox" id="'+id+'"><label for="'+id+'">'+esc(f.l)+'</label>'));
+      var loose = list.filter(function(f){ return !f.r; });
+      var tabled = list.filter(function(f){ return !!f.r; });
+
+      renderLoose(p, loose);
+      renderMedRows(p, tabled);
+    });
+  }
+
+  function renderLoose(p, list) {
+    var texts  = list.filter(function(f){ return f.k !== 'check'; });
+    var checks = list.filter(function(f){ return f.k === 'check'; });
+    if (texts.length) {
+      var grid = el('div','grid');
+      texts.forEach(function (f) { grid.appendChild(textField(f)); });
+      p.appendChild(grid);
+    }
+    if (checks.length) {
+      var box = el('div','checks');
+      checks.forEach(function (f) {
+        var id = 'fld_' + f._i;
+        box.appendChild(el('div','crow',
+          '<input type="checkbox" id="'+id+'"><label for="'+id+'">'+esc(f.l)+'</label>'));
+      });
+      p.appendChild(box);
+    }
+  }
+
+  // A medication row from the paper form: one card per drug, its columns inside.
+  function renderMedRows(p, list) {
+    if (!list.length) return;
+    var rows = [], byRow = {};
+    list.forEach(function (f) {
+      if (!byRow[f.r]) { byRow[f.r] = []; rows.push(f.r); }
+      byRow[f.r].push(f);
+    });
+
+    rows.forEach(function (rname) {
+      var card = el('div','med');
+      var m = rname.match(/^([^(]+)\(([^)]*)\)\s*$/);
+      card.appendChild(el('h5','', m
+        ? esc(m[1].trim()) + ' <em>' + esc(m[2].trim()) + '</em>'
+        : esc(rname)));
+      var body = el('div','medbody');
+
+      var cols = [], byCol = {};
+      byRow[rname].forEach(function (f) {
+        var c = f.c || '';
+        if (!byCol[c]) { byCol[c] = []; cols.push(c); }
+        byCol[c].push(f);
+      });
+
+      var RANK = { '': 0, 'Dose/Strength': 1, 'Dose': 1, 'Directions': 2, 'QTY': 3, 'Refills': 4 };
+      cols.sort(function (a, b) {
+        var ra = RANK[a] === undefined ? 5 : RANK[a], rb = RANK[b] === undefined ? 5 : RANK[b];
+        return ra - rb;
+      });
+      cols.forEach(function (cname) {
+        var grp = el('div','colgrp');
+        if (cname) grp.appendChild(el('span','ch', esc(cname)));
+
+        // one visual line per option: its checkbox plus the blanks that sit on it
+        var lines = [], cur = null;
+        byCol[cname].slice().sort(function(a,b){ return (a.y-b.y) || (a.x-b.x); })
+          .forEach(function (f) {
+            if (!cur || Math.abs(f.y - cur.y) > 6) { cur = { y:f.y, fs:[] }; lines.push(cur); }
+            cur.fs.push(f);
+          });
+
+        lines.forEach(function (ln) {
+          var boxes  = ln.fs.filter(function(f){ return f.k === 'check'; });
+          var inputs = ln.fs.filter(function(f){ return f.k !== 'check'; })
+                            .sort(function(a,b){ return a.x - b.x; });
+          var tpl = boxes.length ? boxes[0].l : (inputs.length ? (inputs[0].ct || inputs[0].l) : '');
+          var segs = tpl ? tpl.split(/_{2,}/) : [];
+
+          if (boxes.length <= 1 && segs.length > 1 && segs.length === inputs.length + 1) {
+            var row = el('div','opt');
+            if (boxes.length) {
+              var cb = document.createElement('input');
+              cb.type = 'checkbox'; cb.id = 'fld_' + boxes[0]._i;
+              row.appendChild(cb);
+            }
+            var line = el('div','fill'); line.style.padding = '0';
+            segs.forEach(function (seg, i) {
+              line.appendChild(document.createTextNode(seg));
+              if (i < inputs.length) {
+                var inp = document.createElement('input');
+                inp.type = 'text'; inp.id = 'fld_' + inputs[i]._i;
+                inp.setAttribute('aria-label', tpl.replace(/_{2,}/g, ' ___ ').trim());
+                line.appendChild(inp);
+              }
+            });
+            row.appendChild(line);
+            grp.appendChild(row);
+          } else {
+            boxes.forEach(function (f) {
+              var id = 'fld_' + f._i;
+              grp.appendChild(el('div','opt',
+                '<input type="checkbox" id="'+id+'"><label for="'+id+'">'+esc(f.l)+'</label>'));
+            });
+            inputs.forEach(function (f) {
+              var d = el('div','fg wide');
+              var id = 'fld_' + f._i;
+              var lab = /^(qty|refills|quantity)$/i.test(cname) ? cname : f.l;
+              d.innerHTML = '<label for="'+id+'">'+esc(lab)+'</label><input type="text" id="'+id+'">';
+              grp.appendChild(d);
+            });
+          }
         });
-        p.appendChild(box);
-      }
+        body.appendChild(grp);
+      });
+
+      card.appendChild(body);
+      p.appendChild(card);
     });
   }
 
@@ -300,8 +418,8 @@
         if (lastSub) lastSub.classList.toggle('hidden', seen === 0);
         lastSub = e; seen = 0; continue;
       }
-      if (!e.classList.contains('grid') && !e.classList.contains('checks')) continue;
-      var rows = e.querySelectorAll('.fg, .crow'), shown = 0;
+      if (!e.classList.contains('grid') && !e.classList.contains('checks') && !e.classList.contains('med')) continue;
+      var rows = e.querySelectorAll('.fg, .crow, .opt, .fill'), shown = 0;
       for (var j=0;j<rows.length;j++) {
         var hit = !q || rows[j].textContent.toLowerCase().indexOf(q) !== -1;
         rows[j].classList.toggle('hidden', !hit);
